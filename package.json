@@ -1,0 +1,112 @@
+{
+  "name": "chat-catalyst",
+  "displayName": "Chat Catalyst",
+  "description": "Auto-inject custom prompts into GitHub Copilot Chat",
+  "version": "0.0.5",
+  "license": "MIT",
+  "author": {
+    "name": "Loic Michel",
+    "email": "loic@yespapa.eu"
+  },
+  "publisher": "chatcatalyst",
+  "icon": "tutor.jpeg",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chatcatalyst/chat-catalyst"
+  },
+  "engines": {
+    "vscode": "^1.94.0"
+  },
+  "categories": [
+    "AI",
+    "Chat"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "Chat Catalyst",
+      "properties": {
+        "chatCatalyst.autoPrompt": {
+          "type": "string",
+          "default": "You are a helpful coding assistant. Please provide clear, concise, and practical programming help.",
+          "description": "The prompt that will be automatically injected when starting any chat session",
+          "scope": "window"
+        },
+        "chatCatalyst.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable automatic prompt injection",
+          "scope": "window"
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "chatCatalyst.startChat",
+        "title": "Start Chat with Auto-Prompt",
+        "category": "Chat Catalyst"
+      },
+      {
+        "command": "chatCatalyst.editPrompt",
+        "title": "Edit Auto-Prompt",
+        "category": "Chat Catalyst"
+      },
+      {
+        "command": "chatCatalyst.toggle",
+        "title": "Toggle Auto-Injection",
+        "category": "Chat Catalyst"
+      },
+      {
+        "command": "chatCatalyst.test",
+        "title": "Test Extension",
+        "category": "Chat Catalyst"
+      },
+      {
+        "command": "chatCatalyst.debug",
+        "title": "Debug - List Chat Commands",
+        "category": "Chat Catalyst"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "chatCatalyst.startChat",
+        "key": "ctrl+alt+c",
+        "mac": "cmd+alt+c",
+        "when": "!chatInputHasFocus"
+      }
+    ],
+    "chatParticipants": [
+      {
+        "id": "chat-catalyst.auto-prompter",
+        "fullName": "Chat Catalyst",
+        "name": "catalyst",
+        "description": "Auto-injects your custom prompt",
+        "isSticky": true
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.13.0",
+    "@stylistic/eslint-plugin": "^2.9.0",
+    "@types/mocha": "^10.0.3",
+    "@types/node": "18.x",
+    "@types/vscode": "^1.94.0",
+    "@vscode/test-electron": "^2.3.6",
+    "eslint": "^9.13.0",
+    "glob": "^10.3.10",
+    "mocha": "^10.2.0",
+    "typescript": "^5.8.2",
+    "typescript-eslint": "^8.26.0"
+  }
+}
