@@ -8,147 +8,129 @@ export class TemplateConfigurationUI {
         this.sessionManager = sessionManager;
     }
 
-    async showTemplateSelector(): Promise<string | null> {
-        const templates = this.sessionManager.getAllTemplates();
-        const workspaceContext = await this.sessionManager.detectWorkspaceContext();
-
-        const items = templates.map(template => ({
-            label: template.name,
-            description: template.description,
-            detail: template.id === workspaceContext.suggestedTemplate ? '🎯 Suggested for this workspace' : '',
-            templateId: template.id
-        }));
-
-        const selected = await vscode.window.showQuickPick(items, {
-            title: 'Chat Catalyst - Select Session Primer Template',
-            placeHolder: 'Choose a template that matches your role and project type...',
-            matchOnDescription: true
-        });
-
-        return selected?.templateId || null;
-    }
-
-    async configureTemplate(templateId: string): Promise<{ [key: string]: string } | null> {
-        const template = this.sessionManager.getTemplate(templateId);
-        if (!template) {
-            return null;
-        }
-
+    async configureSessionPrimer(): Promise<{ [key: string]: string } | null> {
         const workspaceId = this.sessionManager.getCurrentWorkspaceId();
         const existingProfile = await this.sessionManager.getUserProfile(workspaceId);
 
-        // If user already has a profile for this workspace and template, offer to use it
-        if (existingProfile && existingProfile.templateId === templateId) {
+        // If user already has a profile for this workspace, offer to use it
+        if (existingProfile) {
             const useExisting = await vscode.window.showQuickPick([
-                { label: '✅ Use existing configuration', value: 'existing' },
-                { label: '🔧 Reconfigure template', value: 'reconfigure' },
-                { label: '🎯 Switch to different template', value: 'switch' }
+                { label: '✅ Use existing session primer', value: 'existing' },
+                { label: '🔧 Reconfigure session primer', value: 'reconfigure' },
+                { label: '👁️ Preview current session primer', value: 'preview' }
             ], {
-                title: 'Existing Configuration Found',
-                placeHolder: 'You already have a configuration for this workspace...'
+                title: 'Chat Catalyst - Existing Session Primer Found',
+                placeHolder: 'You already have a session primer configured for this workspace...'
             });
 
             if (useExisting?.value === 'existing') {
                 return existingProfile.placeholderValues;
-            } else if (useExisting?.value === 'switch') {
-                return await this.showFullConfigurationWorkflow();
-            }
-            // Continue to reconfigure
-        }
-
-        return await this.collectPlaceholderValues(template, existingProfile?.placeholderValues);
-    }
-
-    private async collectPlaceholderValues(
-        template: SessionTemplate,
-        existingValues?: { [key: string]: string }
-    ): Promise<{ [key: string]: string } | null> {
-        const values: { [key: string]: string } = {};
-
-        vscode.window.showInformationMessage(
-            `Configuring ${template.name} template. Fill in your project details to create the perfect session primer.`,
-            { modal: false }
-        );
-
-        for (const placeholder of template.placeholders) {
-            const existingValue = existingValues?.[placeholder.key];
-            const value = await this.collectSingleValue(placeholder, existingValue);
-
-            if (value === null) {
-                // User cancelled
+            } else if (useExisting?.value === 'preview') {
+                await this.previewSessionPrimer(existingProfile.placeholderValues);
+                return null;
+            } else if (useExisting?.value !== 'reconfigure') {
                 return null;
             }
-
-            values[placeholder.key] = value;
         }
 
-        // Show preview
-        const previewPrompt = this.sessionManager.generatePrompt(template.id, values);
-        const preview = await this.showPreview(previewPrompt);
+        // Auto-detect workspace context to provide intelligent defaults
+        const workspaceContext = await this.sessionManager.detectWorkspaceContext();
+        const template = this.sessionManager.getUniversalTemplate();
 
-        if (!preview) {
+        // Start with existing values or workspace-detected defaults
+        const values: { [key: string]: string } = {};
+
+        // Set intelligent defaults based on workspace detection
+        for (const placeholder of template.placeholders) {
+            if (existingProfile) {
+                values[placeholder.key] = existingProfile.placeholderValues[placeholder.key] || placeholder.defaultValue || '';
+            } else {
+                // Provide intelligent defaults based on workspace detection
+                switch (placeholder.key) {
+                    case 'LANGUAGES':
+                        values[placeholder.key] = workspaceContext.projectInfo.languages;
+                        break;
+                    case 'FRAMEWORKS':
+                        values[placeholder.key] = workspaceContext.projectInfo.frameworks;
+                        break;
+                    case 'PROJECT_NAME':
+                        const workspaceName = vscode.workspace.workspaceFolders?.[0]?.name || 'My Project';
+                        values[placeholder.key] = workspaceName;
+                        break;
+                    default:
+                        values[placeholder.key] = placeholder.defaultValue || '';
+                }
+            }
+        }
+
+        // Configure each placeholder
+        for (const placeholder of template.placeholders) {
+            const result = await this.configureField(placeholder, values[placeholder.key]);
+            if (result === null) {
+                return null;
+            }
+            values[placeholder.key] = result;
+        }
+
+        // Offer to preview before saving
+        const previewChoice = await vscode.window.showQuickPick([
+            { label: '💾 Save session primer', value: 'save' },
+            { label: '👁️ Preview session primer first', value: 'preview' }
+        ], {
+            title: 'Chat Catalyst - Configuration Complete',
+            placeHolder: 'Your session primer is ready...'
+        });
+
+        if (previewChoice?.value === 'preview') {
+            const shouldSave = await this.previewSessionPrimer(values);
+            if (!shouldSave) {
+                return null;
+            }
+        } else if (previewChoice?.value !== 'save') {
             return null;
         }
-
-        // Save the configuration
-        const profile: UserSessionProfile = {
-            templateId: template.id,
-            placeholderValues: values,
-            workspaceId: this.sessionManager.getCurrentWorkspaceId(),
-            lastUpdated: new Date()
-        };
-
-        await this.sessionManager.saveUserProfile(profile);
-
-        vscode.window.showInformationMessage(
-            `✅ Session primer configured! Press Ctrl+Shift+C to start chats with your personalized prompt.`,
-            { modal: false }
-        );
 
         return values;
     }
 
-    private async collectSingleValue(placeholder: TemplatePlaceholder, existingValue?: string): Promise<string | null> {
+    private async configureField(placeholder: TemplatePlaceholder, currentValue: string): Promise<string | null> {
         switch (placeholder.type) {
+            case 'text':
+                return await vscode.window.showInputBox({
+                    title: `Chat Catalyst - ${placeholder.label}`,
+                    prompt: placeholder.description,
+                    value: currentValue,
+                    placeHolder: placeholder.defaultValue || `Enter ${placeholder.label.toLowerCase()}...`
+                }) || null;
+
             case 'select':
-                return await this.collectSelectValue(placeholder, existingValue);
+                if (!placeholder.options) {
+                    return currentValue;
+                }
+
+                const items = placeholder.options.map(option => ({
+                    label: option,
+                    picked: option === currentValue
+                }));
+
+                const selected = await vscode.window.showQuickPick(items, {
+                    title: `Chat Catalyst - ${placeholder.label}`,
+                    placeHolder: placeholder.description,
+                    canPickMany: false
+                });
+
+                return selected ? selected.label : null;
+
             case 'multiline':
-                return await this.collectMultilineValue(placeholder, existingValue);
+                return await this.configureMultilineField(placeholder, currentValue);
+
             default:
-                return await this.collectTextValue(placeholder, existingValue);
+                return currentValue;
         }
     }
 
-    private async collectTextValue(placeholder: TemplatePlaceholder, existingValue?: string): Promise<string | null> {
-        return await vscode.window.showInputBox({
-            title: `Configure: ${placeholder.label}`,
-            prompt: placeholder.description,
-            value: existingValue || placeholder.defaultValue || '',
-            placeHolder: placeholder.defaultValue || `Enter ${placeholder.label.toLowerCase()}...`
-        }) || null;
-    }
-
-    private async collectSelectValue(placeholder: TemplatePlaceholder, existingValue?: string): Promise<string | null> {
-        if (!placeholder.options) {
-            return await this.collectTextValue(placeholder, existingValue);
-        }
-
-        const items = placeholder.options.map(option => ({
-            label: option,
-            picked: option === (existingValue || placeholder.defaultValue)
-        }));
-
-        const selected = await vscode.window.showQuickPick(items, {
-            title: `Configure: ${placeholder.label}`,
-            placeHolder: placeholder.description
-        });
-
-        return selected?.label || null;
-    }
-
-    private async collectMultilineValue(placeholder: TemplatePlaceholder, existingValue?: string): Promise<string | null> {
-        // For multiline input, we'll create a temporary document
-        const initialContent = existingValue || placeholder.defaultValue || '';
+    private async configureMultilineField(placeholder: TemplatePlaceholder, currentValue: string): Promise<string | null> {
+        const initialContent = currentValue || placeholder.defaultValue || '';
 
         const doc = await vscode.workspace.openTextDocument({
             content: initialContent,
@@ -159,42 +141,27 @@ export class TemplateConfigurationUI {
 
         const result = await vscode.window.showInformationMessage(
             `Edit ${placeholder.label} in the opened editor. Click 'Done' when finished.`,
-            { modal: true },
             'Done',
             'Cancel'
         );
 
         const content = result === 'Done' ? editor.document.getText() : null;
-
-        // Close the temporary document
         await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
 
         return content;
     }
 
-    private async showPreview(prompt: string): Promise<boolean> {
+    private async previewSessionPrimer(values: { [key: string]: string }): Promise<boolean> {
+        const prompt = this.sessionManager.generatePrompt(values);
         const truncated = prompt.length > 500 ? prompt.substring(0, 500) + '...' : prompt;
 
         const result = await vscode.window.showInformationMessage(
             `Preview of your session primer:\n\n${truncated}\n\nDoes this look good?`,
-            { modal: true },
             'Yes, save it',
-            'No, edit again',
-            'Cancel'
+            'No, go back'
         );
 
         return result === 'Yes, save it';
-    }
-
-    async showFullConfigurationWorkflow(): Promise<{ [key: string]: string } | null> {
-        // Step 1: Select template
-        const templateId = await this.showTemplateSelector();
-        if (!templateId) {
-            return null;
-        }
-
-        // Step 2: Configure template
-        return await this.configureTemplate(templateId);
     }
 
     async showQuickConfiguration(): Promise<string | null> {
@@ -202,46 +169,43 @@ export class TemplateConfigurationUI {
         const existingProfile = await this.sessionManager.getUserProfile(workspaceId);
 
         if (existingProfile) {
-            // User has existing configuration, use it
-            return this.sessionManager.generatePrompt(existingProfile.templateId, existingProfile.placeholderValues);
+            return this.sessionManager.generatePrompt(existingProfile.placeholderValues);
         }
 
-        // Check if we can auto-detect and suggest a template
         const workspaceContext = await this.sessionManager.detectWorkspaceContext();
 
-        if (workspaceContext.suggestedTemplate) {
-            const useDetected = await vscode.window.showInformationMessage(
-                `Chat Catalyst detected ${workspaceContext.detectedLanguages.join(', ')} in your workspace. Would you like to use the ${this.sessionManager.getTemplate(workspaceContext.suggestedTemplate)?.name} template?`,
-                'Yes, configure it',
-                'Choose different template',
-                'Use simple prompt'
-            );
+        // Quick configuration using intelligent defaults
+        const template = this.sessionManager.getUniversalTemplate();
+        const values: { [key: string]: string } = {};
 
-            if (useDetected === 'Yes, configure it') {
-                const values = await this.configureTemplate(workspaceContext.suggestedTemplate);
-                return values ? this.sessionManager.generatePrompt(workspaceContext.suggestedTemplate, values) : null;
-            } else if (useDetected === 'Choose different template') {
-                const values = await this.showFullConfigurationWorkflow();
-                return values ? this.sessionManager.generatePrompt(workspaceContext.suggestedTemplate, values) : null;
-            }
-        } else {
-            // No detection, show template selector
-            const configure = await vscode.window.showInformationMessage(
-                'No session primer configured for this workspace. Would you like to set one up?',
-                'Yes, configure now',
-                'Use simple prompt'
-            );
-
-            if (configure === 'Yes, configure now') {
-                const values = await this.showFullConfigurationWorkflow();
-                if (values) {
-                    const profile = await this.sessionManager.getUserProfile(workspaceId);
-                    return profile ? this.sessionManager.generatePrompt(profile.templateId, values) : null;
-                }
+        // Auto-fill with intelligent defaults
+        for (const placeholder of template.placeholders) {
+            switch (placeholder.key) {
+                case 'LANGUAGES':
+                    values[placeholder.key] = workspaceContext.projectInfo.languages;
+                    break;
+                case 'FRAMEWORKS':
+                    values[placeholder.key] = workspaceContext.projectInfo.frameworks;
+                    break;
+                case 'PROJECT_NAME':
+                    const workspaceName = vscode.workspace.workspaceFolders?.[0]?.name || 'My Project';
+                    values[placeholder.key] = workspaceName;
+                    break;
+                default:
+                    values[placeholder.key] = placeholder.defaultValue || '';
             }
         }
 
-        return null; // Fall back to simple prompt
+        // Save the quick configuration
+        const profile: UserSessionProfile = {
+            placeholderValues: values,
+            workspaceId: workspaceId,
+            lastUpdated: new Date()
+        };
+
+        await this.sessionManager.saveUserProfile(profile);
+
+        return this.sessionManager.generatePrompt(values);
     }
 
     async showManageTemplates(): Promise<void> {
@@ -249,7 +213,7 @@ export class TemplateConfigurationUI {
         const existingProfile = await this.sessionManager.getUserProfile(workspaceId);
 
         const actions = [
-            { label: '🎯 Configure new session primer', value: 'configure' },
+            { label: '🔧 Configure session primer', value: 'configure' },
             { label: '📝 Edit current configuration', value: 'edit', disabled: !existingProfile },
             { label: '👀 Preview current prompt', value: 'preview', disabled: !existingProfile },
             { label: '🗑️ Reset to simple prompt', value: 'reset', disabled: !existingProfile }
@@ -257,32 +221,30 @@ export class TemplateConfigurationUI {
 
         const selected = await vscode.window.showQuickPick(actions, {
             title: 'Chat Catalyst - Manage Session Primers',
-            placeHolder: 'What would you like to do?'
+            placeHolder: 'Choose an action...'
         });
 
         switch (selected?.value) {
             case 'configure':
-                await this.showFullConfigurationWorkflow();
+                await this.configureSessionPrimer();
                 break;
+
             case 'edit':
                 if (existingProfile) {
-                    await this.configureTemplate(existingProfile.templateId);
+                    await this.configureSessionPrimer();
                 }
                 break;
+
             case 'preview':
                 if (existingProfile) {
-                    const prompt = this.sessionManager.generatePrompt(existingProfile.templateId, existingProfile.placeholderValues);
-                    const doc = await vscode.workspace.openTextDocument({
-                        content: prompt,
-                        language: 'plaintext'
-                    });
-                    await vscode.window.showTextDocument(doc);
+                    await this.previewSessionPrimer(existingProfile.placeholderValues);
                 }
                 break;
+
             case 'reset':
-                const profiles = this.sessionManager.context.globalState.get<UserSessionProfile[]>('sessionProfiles', []);
+                const profiles = await this.sessionManager.getStoredProfiles();
                 const filteredProfiles = profiles.filter(p => p.workspaceId !== workspaceId);
-                await this.sessionManager.context.globalState.update('sessionProfiles', filteredProfiles);
+                await this.sessionManager.saveStoredProfiles(filteredProfiles);
                 vscode.window.showInformationMessage('Session primer reset. Will use simple prompt until reconfigured.');
                 break;
         }

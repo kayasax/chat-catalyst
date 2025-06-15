@@ -1,8 +1,8 @@
 {
   "name": "chat-catalyst",
-  "displayName": "Chat Catalyst",
-  "description": "Auto-inject custom prompts into GitHub Copilot Chat",
-  "version": "0.0.6",
+  "displayName": "Chat Catalyst 1.1: Perfect Session Memory",
+  "description": "Intelligent session primers that give AI assistants perfect context about your project, coding style, and goals for better responses",
+  "version": "1.1.0",
   "license": "MIT",
   "author": {
     "name": "Loic Michel",
@@ -46,12 +46,27 @@
     "commands": [
       {
         "command": "chatCatalyst.startChat",
-        "title": "Start Chat with Auto-Prompt",
+        "title": "Start Chat with Session Primer",
+        "category": "Chat Catalyst"
+      },
+      {
+        "command": "chatCatalyst.configureSessionPrimer",
+        "title": "Configure Session Primer",
+        "category": "Chat Catalyst"
+      },
+      {
+        "command": "chatCatalyst.manageSessionPrimers",
+        "title": "Manage Session Primers",
+        "category": "Chat Catalyst"
+      },
+      {
+        "command": "chatCatalyst.quickConfigure",
+        "title": "Quick Configure Session Primer",
         "category": "Chat Catalyst"
       },
       {
         "command": "chatCatalyst.editPrompt",
-        "title": "Edit Auto-Prompt",
+        "title": "Edit Prompt (Legacy & Advanced)",
         "category": "Chat Catalyst"
       },
       {

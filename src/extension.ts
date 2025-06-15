@@ -30,7 +30,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 		if (userProfile) {
 			try {
-				const sessionPrimer = sessionManager.generatePrompt(userProfile.templateId, userProfile.placeholderValues);
+				const sessionPrimer = sessionManager.generatePrompt(userProfile.placeholderValues);
 				if (sessionPrimer) {
 					console.log('📋 Using session primer from user profile');
 					return sessionPrimer;
@@ -263,13 +263,13 @@ export function activate(context: vscode.ExtensionContext) {
 		console.log('🚀 Start Chat command triggered!');
 
 		try {
-			const autoPrompt = getAutoPrompt();
-			if (!autoPrompt) {
-				vscode.window.showWarningMessage('No auto-prompt configured. Use "Chat Catalyst: Edit Auto-Prompt" to set one.');
+			const sessionPrimer = await getSessionPrimer();
+			if (!sessionPrimer) {
+				vscode.window.showWarningMessage('No session primer configured. Use "Chat Catalyst: Configure Session Primer" to set one.');
 				return;
 			}
 
-			console.log('📝 Auto-prompt configured:', autoPrompt.substring(0, 50) + '...');
+			console.log('📝 Session primer configured:', sessionPrimer.substring(0, 50) + '...');
 
 			// Step 1: Fast chat opening strategy - try most reliable commands first
 			console.log('🎯 Opening chat...');
@@ -339,7 +339,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 			// Step 4: Fast prompt injection
 			console.log('💉 Injecting prompt...');
-			const success = await injectAutoPrompt();
+			const success = await injectSessionPrimer();
 
 			if (success) {
 				console.log('🎉 Success! Prompt injected and chat ready.');
@@ -434,37 +434,85 @@ export function activate(context: vscode.ExtensionContext) {
 		});
 	});
 
-	// Register a command to edit the auto-prompt (simple input box - no file operations)
-	const editPromptCommand = vscode.commands.registerCommand('chatCatalyst.editPrompt', async () => {
-		const config = getConfig();
-		const currentPrompt = config.get<string>('autoPrompt', '');
+	// Register session primer management commands
+	const configureSessionPrimerCommand = vscode.commands.registerCommand('chatCatalyst.configureSessionPrimer', async () => {
+		try {
+			const values = await templateUI.configureSessionPrimer();
+			if (values) {
+				// Save the configuration
+				const workspaceId = sessionManager.getCurrentWorkspaceId();
+				const profile = {
+					placeholderValues: values,
+					workspaceId: workspaceId,
+					lastUpdated: new Date()
+				};
+				
+				await sessionManager.saveUserProfile(profile);
+				vscode.window.showInformationMessage('✅ Session primer configured successfully!');
+			}
+		} catch (error) {
+			console.error('Session primer configuration failed:', error);
+			vscode.window.showErrorMessage('Failed to configure session primer: ' + error);
+		}
+	});
 
-		// Use simple input box - no file operations that trigger "Save As" dialogs
-		const newPrompt = await vscode.window.showInputBox({
-			title: 'Edit Auto-Prompt',
-			prompt: 'Enter your custom auto-prompt (tip: use \\n for line breaks)',
-			value: currentPrompt,
-			ignoreFocusOut: true,
-			placeHolder: 'Enter your auto-prompt here...'
+	const manageSessionPrimersCommand = vscode.commands.registerCommand('chatCatalyst.manageSessionPrimers', async () => {
+		try {
+			await templateUI.showManageTemplates();
+		} catch (error) {
+			console.error('Session primer management failed:', error);
+			vscode.window.showErrorMessage('Failed to manage session primers: ' + error);
+		}
+	});
+
+	const quickConfigureCommand = vscode.commands.registerCommand('chatCatalyst.quickConfigure', async () => {
+		try {
+			const prompt = await templateUI.showQuickConfiguration();
+			if (prompt) {
+				vscode.window.showInformationMessage('✅ Quick session primer configured successfully!');
+			}
+		} catch (error) {
+			console.error('Quick configuration failed:', error);
+			vscode.window.showErrorMessage('Failed to quick configure: ' + error);
+		}
+	});
+
+	// Keep the old editPrompt command for backward compatibility but update it
+	const editPromptCommand = vscode.commands.registerCommand('chatCatalyst.editPrompt', async () => {
+		const choice = await vscode.window.showQuickPick([
+			{ label: '🔧 Configure Session Primer (Recommended)', value: 'configure' },
+			{ label: '📝 Edit Simple Auto-Prompt (Legacy)', value: 'legacy' }
+		], {
+			title: 'Chat Catalyst - Choose Configuration Method',
+			placeHolder: 'How would you like to configure your prompt?'
 		});
 
-		if (newPrompt !== undefined) {
-			// Update configuration directly - no file saving involved
-			await config.update('autoPrompt', newPrompt, vscode.ConfigurationTarget.Global);
+		if (choice?.value === 'configure') {
+			await vscode.commands.executeCommand('chatCatalyst.configureSessionPrimer');
+		} else if (choice?.value === 'legacy') {
+			// Legacy simple prompt editing
+			const config = getConfig();
+			const currentPrompt = config.get<string>('autoPrompt', '');
 
-			// Show success message with preview
-			const promptPreview = newPrompt.length > 100
-				? newPrompt.substring(0, 100) + '...'
-				: newPrompt;
+			const newPrompt = await vscode.window.showInputBox({
+				title: 'Edit Auto-Prompt (Legacy)',
+				prompt: 'Enter your custom auto-prompt (tip: use \\n for line breaks)',
+				value: currentPrompt,
+				ignoreFocusOut: true,
+				placeHolder: 'Enter your auto-prompt here...'
+			});
 
-			vscode.window.setStatusBarMessage(
-				`✅ Auto-prompt updated! Preview: "${promptPreview}"`,
-				4000
-			);
+			if (newPrompt !== undefined) {
+				await config.update('autoPrompt', newPrompt, vscode.ConfigurationTarget.Global);
+				const promptPreview = newPrompt.length > 100
+					? newPrompt.substring(0, 100) + '...'
+					: newPrompt;
 
-			console.log('✅ Auto-prompt updated via input box');
-		} else {
-			vscode.window.setStatusBarMessage('Auto-prompt editing cancelled', 2000);
+				vscode.window.setStatusBarMessage(
+					`✅ Auto-prompt updated! Preview: "${promptPreview}"`,
+					4000
+				);
+			}
 		}
 	});
 
@@ -481,25 +529,33 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 
 	// Add commands to the extension context
-	context.subscriptions.push(startChatCommand, editPromptCommand, toggleCommand, testCommand, debugCommand);
+	context.subscriptions.push(
+		startChatCommand, 
+		editPromptCommand, 
+		toggleCommand, 
+		testCommand, 
+		debugCommand,
+		configureSessionPrimerCommand,
+		manageSessionPrimersCommand,
+		quickConfigureCommand
+	);
 	console.log('Chat Catalyst commands registered successfully!');
 	// Show a welcome message when the extension activates
-	const message = 'Chat Catalyst is ready! Press Ctrl+Alt+C to start chat with auto-prompt.';
+	const message = 'Chat Catalyst 1.1 is ready! Enhanced with perfect session primers.';
 
-	vscode.window.showInformationMessage(message, 'Start Chat', 'Edit Prompt', 'Open Settings').then(async selection => {
+	vscode.window.showInformationMessage(message, 'Start Chat', 'Configure Session Primer', 'Open Settings').then(async selection => {
 		console.log('Welcome action selected:', selection);
 
 		if (selection === 'Start Chat') {
 			console.log('🚀 Starting chat from welcome button (immediate)...');
-			// Execute immediately without delay for faster response
 			try {
 				await vscode.commands.executeCommand('chatCatalyst.startChat');
 			} catch (error) {
 				console.error('Start chat from welcome failed:', error);
 				vscode.window.showErrorMessage('Failed to start chat. Try using Ctrl+Alt+C instead.');
 			}
-		} else if (selection === 'Edit Prompt') {
-			vscode.commands.executeCommand('chatCatalyst.editPrompt');
+		} else if (selection === 'Configure Session Primer') {
+			vscode.commands.executeCommand('chatCatalyst.configureSessionPrimer');
 		} else if (selection === 'Open Settings') {
 			vscode.commands.executeCommand('workbench.action.openSettings', 'chatCatalyst');
 		}

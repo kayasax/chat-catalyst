@@ -186,4 +186,12 @@ Today's specific question: `,
         }
         return workspaceFolders[0].uri.fsPath;
     }
+
+    async getStoredProfiles(): Promise<UserSessionProfile[]> {
+        return this.context.globalState.get<UserSessionProfile[]>('sessionProfiles', []);
+    }
+
+    async saveStoredProfiles(profiles: UserSessionProfile[]): Promise<void> {
+        await this.context.globalState.update('sessionProfiles', profiles);
+    }
 }
