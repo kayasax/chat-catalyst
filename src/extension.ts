@@ -1,7 +1,13 @@
 import * as vscode from 'vscode';
+import { SessionPrimerManager } from './sessionPrimers';
+import { TemplateConfigurationUI } from './templateUI';
 
 export function activate(context: vscode.ExtensionContext) {
-	console.log('🚀 Chat Catalyst extension is now active!');
+	console.log('🚀 Chat Catalyst 1.1: Perfect Session Primers is now active!');
+
+	// Initialize session primer system
+	const sessionManager = new SessionPrimerManager(context);
+	const templateUI = new TemplateConfigurationUI(sessionManager);
 
 	// Track if we're currently executing to prevent conflicts
 	let isExecuting = false;
@@ -11,13 +17,32 @@ export function activate(context: vscode.ExtensionContext) {
 		return vscode.workspace.getConfiguration('chatCatalyst');
 	}
 
-	// Check if auto-injection is enabled and get the custom prompt
-	function getAutoPrompt(): string | null {
+	// Check if auto-injection is enabled and get the session primer or custom prompt
+	async function getSessionPrimer(): Promise<string | null> {
 		const config = getConfig();
 		const enabled = config.get<boolean>('enabled', true);
-		const autoPrompt = config.get<string>('autoPrompt', '');
 
-		return enabled && autoPrompt ? autoPrompt : null;
+		if (!enabled) return null;
+
+		// First try to get session primer from user profile
+		const workspaceId = sessionManager.getCurrentWorkspaceId();
+		const userProfile = await sessionManager.getUserProfile(workspaceId);
+
+		if (userProfile) {
+			try {
+				const sessionPrimer = sessionManager.generatePrompt(userProfile.templateId, userProfile.placeholderValues);
+				if (sessionPrimer) {
+					console.log('📋 Using session primer from user profile');
+					return sessionPrimer;
+				}
+			} catch (error) {
+				console.log('⚠️ Failed to generate session primer, falling back to custom prompt:', error);
+			}
+		}
+
+		// Fallback to custom auto-prompt from settings
+		const autoPrompt = config.get<string>('autoPrompt', '');
+		return autoPrompt || null;
 	}
 
 	// Function to detect if chat is currently open and focused
@@ -86,12 +111,12 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	}
 
-	// Simple, reliable function to inject auto-prompt with better state management
-	async function injectAutoPrompt(): Promise<boolean> {
-		const autoPrompt = getAutoPrompt();
-		if (!autoPrompt) return false;
+	// Simple, reliable function to inject session primer with better state management
+	async function injectSessionPrimer(): Promise<boolean> {
+		const sessionPrimer = await getSessionPrimer();
+		if (!sessionPrimer) return false;
 
-		console.log('🔄 Injecting prompt:', autoPrompt.substring(0, 50) + '...');
+		console.log('🔄 Injecting session primer:', sessionPrimer.substring(0, 50) + '...');
 
 		try {
 			// Store original clipboard with better error handling
@@ -114,17 +139,17 @@ export function activate(context: vscode.ExtensionContext) {
 			// Small delay after clearing
 			await new Promise(resolve => setTimeout(resolve, 100));
 
-			// Step 2: Put prompt in clipboard
-			await vscode.env.clipboard.writeText(autoPrompt);
+			// Step 2: Put session primer in clipboard
+			await vscode.env.clipboard.writeText(sessionPrimer);
 
 			// Shorter delay for faster response
 			await new Promise(resolve => setTimeout(resolve, 150));
 
 			// Step 3: Try type command first (most reliable when input is focused)
 			try {
-				await vscode.commands.executeCommand('type', { text: autoPrompt });
-				console.log('✅ Prompt injected via type command');
-				vscode.window.setStatusBarMessage('✅ Prompt injected!', 2000);
+				await vscode.commands.executeCommand('type', { text: sessionPrimer });
+				console.log('✅ Session primer injected via type command');
+				vscode.window.setStatusBarMessage('✅ Session primer injected!', 2000);
 
 				// Restore clipboard after success - with error handling
 				setTimeout(async () => {
@@ -143,8 +168,8 @@ export function activate(context: vscode.ExtensionContext) {
 				// Step 4: Fallback to paste
 				try {
 					await vscode.commands.executeCommand('editor.action.clipboardPasteAction');
-					console.log('✅ Prompt injected via paste command');
-					vscode.window.setStatusBarMessage('✅ Prompt injected!', 2000);
+					console.log('✅ Session primer injected via paste command');
+					vscode.window.setStatusBarMessage('✅ Session primer injected!', 2000);
 
 					// Restore clipboard after success - with error handling
 					setTimeout(async () => {
@@ -159,31 +184,31 @@ export function activate(context: vscode.ExtensionContext) {
 					return true;
 				} catch (pasteError) {
 					console.log('Both type and paste failed:', pasteError);
-					vscode.window.setStatusBarMessage('📋 Prompt in clipboard - paste with Ctrl+V', 4000);
+					vscode.window.setStatusBarMessage('📋 Session primer in clipboard - paste with Ctrl+V', 4000);
 
 					// Don't restore clipboard so user can paste manually
 					return false;
 				}
 			}
 		} catch (error) {
-			console.error('Injection failed:', error);
-			vscode.window.setStatusBarMessage('❌ Injection failed', 2000);
+			console.error('Session primer injection failed:', error);
+			vscode.window.setStatusBarMessage('❌ Session primer injection failed', 2000);
 			return false;
 		}
 	}
 
-	// Create a chat handler that auto-injects the custom prompt
+	// Create a chat handler that auto-injects the session primer
 	const handler: vscode.ChatRequestHandler = async (request: vscode.ChatRequest, context: vscode.ChatContext, stream: vscode.ChatResponseStream, token: vscode.CancellationToken) => {
 
-		// Get the auto-prompt from settings
-		const autoPrompt = getAutoPrompt();
+		// Get the session primer from settings
+		const sessionPrimer = await getSessionPrimer();
 
 		// Initialize the messages array
 		const messages: vscode.LanguageModelChatMessage[] = [];
 
-		// If auto-prompt is enabled, add it as the first system message
-		if (autoPrompt) {
-			messages.push(vscode.LanguageModelChatMessage.User(autoPrompt));
+		// If session primer is available, add it as the first system message
+		if (sessionPrimer) {
+			messages.push(vscode.LanguageModelChatMessage.User(sessionPrimer));
 		}
 
 		// Get all the previous participant messages from chat history
