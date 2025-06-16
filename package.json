@@ -1,8 +1,7 @@
-{
-  "name": "chat-catalyst",
+{  "name": "chat-catalyst",
   "displayName": "Chat Catalyst",
   "description": "Auto-inject custom prompts into GitHub Copilot Chat",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "license": "MIT",
   "author": {
     "name": "Loic Michel",
@@ -28,10 +27,9 @@
   "contributes": {
     "configuration": {
       "title": "Chat Catalyst",
-      "properties": {
-        "chatCatalyst.autoPrompt": {
+      "properties": {        "chatCatalyst.autoPrompt": {
           "type": "string",
-          "default": "You are a helpful coding assistant. Please provide clear, concise, and practical programming help.",
+          "default": "Step 1: Load Project Context\nCheck if session_starter.md file exists in the workspace. If it exists: Read and use it to understand the project's goals, constraints, and current status. If it does not exist: Ask me \"Describe your project in a few words to get started\" and then create a basic session_starter.md file.\n\nStep 2: Maintain Persistent Memory\nALWAYS update the existing session_starter.md file with our session progress. Add new findings, decisions, blockers, and progress to the Update Log section. Do NOT create additional markdown files - use session_starter.md as the single source of truth for project memory.\n\nStep 3: Behavior Expectations\nBe proactive: suggest next steps, improvements, or missing pieces. Be concise and structured in your responses. Update the session_starter.md file regularly during our conversation to maintain continuity across sessions.\n\nIMPORTANT: Focus on updating the existing session_starter.md file rather than creating new documentation files. This file should serve as the persistent memory and be updated with each significant finding or decision.",
           "description": "The prompt that will be automatically injected when starting any chat session",
           "scope": "window"
         },
@@ -69,13 +67,11 @@
         "title": "Debug - List Chat Commands",
         "category": "Chat Catalyst"
       }
-    ],
-    "keybindings": [
+    ],    "keybindings": [
       {
         "command": "chatCatalyst.startChat",
         "key": "ctrl+alt+c",
-        "mac": "cmd+alt+c",
-        "when": "!chatInputHasFocus"
+        "mac": "cmd+alt+c"
       }
     ],
     "chatParticipants": [

@@ -36,10 +36,9 @@ export function activate(context: vscode.ExtensionContext) {
 			return false;
 		}
 	}
-
 	// Function to clear existing text in chat input field
 	async function clearChatInput(): Promise<boolean> {
-		console.log('🧹 Clearing existing chat input text...');
+		// console.log('🧹 Clearing existing chat input text...');
 
 		try {
 			// Method 1: Select all and delete
@@ -47,10 +46,10 @@ export function activate(context: vscode.ExtensionContext) {
 				await vscode.commands.executeCommand('editor.action.selectAll');
 				await new Promise(resolve => setTimeout(resolve, 50));
 				await vscode.commands.executeCommand('deleteLeft');
-				console.log('✅ Text cleared via selectAll + delete');
+				// console.log('✅ Text cleared via selectAll + delete');
 				return true;
 			} catch (method1Error) {
-				console.log('❌ Method 1 failed:', method1Error);
+				// console.log('❌ Method 1 failed:', method1Error);
 			}
 
 			// Method 2: Ctrl+A + Delete key
@@ -58,10 +57,10 @@ export function activate(context: vscode.ExtensionContext) {
 				await vscode.commands.executeCommand('editor.action.selectAll');
 				await new Promise(resolve => setTimeout(resolve, 50));
 				await vscode.commands.executeCommand('deleteAllLeft');
-				console.log('✅ Text cleared via selectAll + deleteAllLeft');
+				// console.log('✅ Text cleared via selectAll + deleteAllLeft');
 				return true;
 			} catch (method2Error) {
-				console.log('❌ Method 2 failed:', method2Error);
+				// console.log('❌ Method 2 failed:', method2Error);
 			}
 
 			// Method 3: Multiple backspace commands
@@ -72,10 +71,10 @@ export function activate(context: vscode.ExtensionContext) {
 				await vscode.commands.executeCommand('cursorHomeSelect');
 				await new Promise(resolve => setTimeout(resolve, 50));
 				await vscode.commands.executeCommand('deleteLeft');
-				console.log('✅ Text cleared via cursor + select + delete');
+				// console.log('✅ Text cleared via cursor + select + delete');
 				return true;
 			} catch (method3Error) {
-				console.log('❌ Method 3 failed:', method3Error);
+				// console.log('❌ Method 3 failed:', method3Error);
 			}
 
 			console.log('⚠️ All text clearing methods failed, continuing anyway...');
@@ -85,65 +84,57 @@ export function activate(context: vscode.ExtensionContext) {
 			return false;
 		}
 	}
-
 	// Simple, reliable function to inject auto-prompt with better state management
 	async function injectAutoPrompt(): Promise<boolean> {
 		const autoPrompt = getAutoPrompt();
-		if (!autoPrompt) return false;
+		if (!autoPrompt) { return false; }
 
-		console.log('🔄 Injecting prompt:', autoPrompt.substring(0, 50) + '...');
+		// console.log('🔄 Injecting prompt:', autoPrompt.substring(0, 50) + '...');
 
 		try {
 			// Store original clipboard with better error handling
 			let originalClipboard = '';
 			try {
 				originalClipboard = await vscode.env.clipboard.readText();
-			} catch (clipError) {
-				console.log('⚠️ Could not read clipboard, continuing anyway...');
+			} catch {
+				// console.log('⚠️ Could not read clipboard, continuing anyway...');
 			}
 
 			// Step 1: Clear any existing text in the input field
-			console.log('🧹 Clearing existing text...');
+			// console.log('🧹 Clearing existing text...');
 			const cleared = await clearChatInput();
-			if (cleared) {
-				console.log('✅ Existing text successfully cleared');
-			} else {
-				console.log('⚠️ Could not clear existing text, continuing anyway...');
-			}
-
-			// Small delay after clearing
-			await new Promise(resolve => setTimeout(resolve, 100));
+			if (!cleared) {
+				// console.log('⚠️ Could not clear existing text, continuing anyway...');
+			}			// Minimal delay after clearing (reduced to 10ms)
+			await new Promise(resolve => setTimeout(resolve, 10));
 
 			// Step 2: Put prompt in clipboard
-			await vscode.env.clipboard.writeText(autoPrompt);
-
-			// Shorter delay for faster response
-			await new Promise(resolve => setTimeout(resolve, 150));
+			await vscode.env.clipboard.writeText(autoPrompt);			// Faster delay for better responsiveness (reduced to 10ms)
+			await new Promise(resolve => setTimeout(resolve, 10));
 
 			// Step 3: Try type command first (most reliable when input is focused)
 			try {
-				await vscode.commands.executeCommand('type', { text: autoPrompt });
-				console.log('✅ Prompt injected via type command');
+				await vscode.commands.executeCommand('type', { text: autoPrompt });				console.log('✅ Prompt injected successfully');
 				vscode.window.setStatusBarMessage('✅ Prompt injected!', 2000);
 
-				// Restore clipboard after success - with error handling
+				// Fast clipboard restore after success
 				setTimeout(async () => {
 					try {
 						if (originalClipboard !== undefined) {
 							await vscode.env.clipboard.writeText(originalClipboard);
 						}
-					} catch (restoreError) {
-						console.log('⚠️ Could not restore clipboard:', restoreError);
+					} catch {
+						// console.log('⚠️ Could not restore clipboard:', restoreError);
 					}
-				}, 800);
+				}, 200);
 				return true;
-			} catch (typeError) {
-				console.log('Type failed, trying paste:', typeError);
+			} catch {
+				// console.log('Type failed, trying paste:', typeError);
 
 				// Step 4: Fallback to paste
 				try {
 					await vscode.commands.executeCommand('editor.action.clipboardPasteAction');
-					console.log('✅ Prompt injected via paste command');
+					console.log('✅ Prompt injected via paste fallback');
 					vscode.window.setStatusBarMessage('✅ Prompt injected!', 2000);
 
 					// Restore clipboard after success - with error handling
@@ -152,13 +143,13 @@ export function activate(context: vscode.ExtensionContext) {
 							if (originalClipboard !== undefined) {
 								await vscode.env.clipboard.writeText(originalClipboard);
 							}
-						} catch (restoreError) {
-							console.log('⚠️ Could not restore clipboard:', restoreError);
+						} catch {
+							// console.log('⚠️ Could not restore clipboard:', restoreError);
 						}
 					}, 800);
 					return true;
-				} catch (pasteError) {
-					console.log('Both type and paste failed:', pasteError);
+				} catch {
+					console.log('❌ Both type and paste failed - prompt in clipboard');
 					vscode.window.setStatusBarMessage('📋 Prompt in clipboard - paste with Ctrl+V', 4000);
 
 					// Don't restore clipboard so user can paste manually
@@ -166,7 +157,7 @@ export function activate(context: vscode.ExtensionContext) {
 				}
 			}
 		} catch (error) {
-			console.error('Injection failed:', error);
+			console.error('❌ Injection failed:', error);
 			vscode.window.setStatusBarMessage('❌ Injection failed', 2000);
 			return false;
 		}
@@ -242,38 +233,29 @@ export function activate(context: vscode.ExtensionContext) {
 			if (!autoPrompt) {
 				vscode.window.showWarningMessage('No auto-prompt configured. Use "Chat Catalyst: Edit Auto-Prompt" to set one.');
 				return;
-			}
-
-			console.log('📝 Auto-prompt configured:', autoPrompt.substring(0, 50) + '...');
-
-			// Step 1: Fast chat opening strategy - try most reliable commands first
-			console.log('🎯 Opening chat...');
-
-			let chatOpened = false;
+			}			// console.log('📝 Auto-prompt configured:', autoPrompt.substring(0, 50) + '...');			// Step 1: Fast chat opening strategy - try most reliable commands first
+			// console.log('🎯 Opening chat...');
 
 			// Primary strategy: Focus existing chat panel
 			try {
 				await vscode.commands.executeCommand('workbench.panel.chat.view.copilot.focus');
-				console.log('✅ Chat panel focused');
-				chatOpened = true;
-			} catch (error) {
-				console.log('Chat panel focus failed, trying alternatives...');
+				// console.log('✅ Chat panel focused');
+			} catch {
+				// console.log('Chat panel focus failed, trying alternatives...');
 
 				// Secondary strategy: Open chat dialog
 				try {
 					await vscode.commands.executeCommand('workbench.action.chat.open');
-					console.log('✅ Chat opened via action.chat.open');
-					chatOpened = true;
-				} catch (altError) {
-					console.log('Chat open failed, trying GitHub Copilot specific commands...');
+					// console.log('✅ Chat opened via action.chat.open');
+				} catch {
+					// console.log('Chat open failed, trying GitHub Copilot specific commands...');
 
 					// Tertiary strategy: GitHub Copilot specific
 					try {
 						await vscode.commands.executeCommand('github.copilot.chat.focus');
-						console.log('✅ GitHub Copilot Chat focused');
-						chatOpened = true;
-					} catch (copilotError) {
-						console.log('All chat opening methods failed');
+						console.log('✅ Chat Catalyst: GitHub Copilot Chat focused');
+					} catch {
+						console.log('❌ Chat Catalyst: All chat opening methods failed');
 
 						// Show user-friendly error with options
 						const result = await vscode.window.showErrorMessage(
@@ -293,34 +275,30 @@ export function activate(context: vscode.ExtensionContext) {
 						return;
 					}
 				}
-			}
-
-			// Step 2: Quick initialization wait (reduced from 1000ms to 500ms)
-			console.log('⏳ Brief initialization wait...');
-			await new Promise(resolve => setTimeout(resolve, 500));
+			}			// Step 2: Minimal initialization wait (reduced to 25ms for faster response)
+			// console.log('⏳ Brief initialization wait...');
+			await new Promise(resolve => setTimeout(resolve, 25));
 
 			// Step 3: Focus input field with quick fallback
-			console.log('🎯 Focusing input field...');
+			// console.log('🎯 Focusing input field...');
 			try {
 				await vscode.commands.executeCommand('workbench.action.chat.focusInput');
-				console.log('✅ Input focused');
-			} catch (focusError) {
-				console.log('Input focus failed, using general focus...');
+				// console.log('✅ Input focused');
+			} catch {
+				// console.log('Input focus failed, using general focus...');
 				// Don't fail here, just continue - sometimes focus isn't needed
-			}
-
-			// Small delay for focus to settle
-			await new Promise(resolve => setTimeout(resolve, 200));
+			}			// Minimal delay for focus to settle (reduced to 10ms)
+			await new Promise(resolve => setTimeout(resolve, 10));
 
 			// Step 4: Fast prompt injection
-			console.log('💉 Injecting prompt...');
+			// console.log('💉 Injecting prompt...');
 			const success = await injectAutoPrompt();
 
 			if (success) {
-				console.log('🎉 Success! Prompt injected and chat ready.');
+				console.log('🎉 Chat Catalyst: Prompt injected successfully');
 				vscode.window.setStatusBarMessage('🎉 Chat started with auto-prompt!', 2000);
 			} else {
-				console.log('⚠️ Injection failed, providing quick fallback.');
+				console.log('⚠️ Chat Catalyst: Injection failed - prompt in clipboard');
 				vscode.window.setStatusBarMessage('📋 Prompt in clipboard - paste with Ctrl+V', 3000);
 
 				// Quick retry option
@@ -330,10 +308,9 @@ export function activate(context: vscode.ExtensionContext) {
 					'Paste Now'
 				);
 
-				if (retry === 'Try Again') {
-					// Quick retry without delay
+				if (retry === 'Try Again') {					// Fast retry for better responsiveness
 					isExecuting = false;
-					setTimeout(() => vscode.commands.executeCommand('chatCatalyst.startChat'), 500);
+					setTimeout(() => vscode.commands.executeCommand('chatCatalyst.startChat'), 100);
 					return;
 				}
 			}
