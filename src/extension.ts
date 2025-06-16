@@ -446,7 +446,7 @@ export function activate(context: vscode.ExtensionContext) {
 					workspaceId: workspaceId,
 					lastUpdated: new Date()
 				};
-				
+
 				await sessionManager.saveUserProfile(profile);
 				vscode.window.showInformationMessage('✅ Session primer configured successfully!');
 			}
@@ -530,10 +530,10 @@ export function activate(context: vscode.ExtensionContext) {
 
 	// Add commands to the extension context
 	context.subscriptions.push(
-		startChatCommand, 
-		editPromptCommand, 
-		toggleCommand, 
-		testCommand, 
+		startChatCommand,
+		editPromptCommand,
+		toggleCommand,
+		testCommand,
 		debugCommand,
 		configureSessionPrimerCommand,
 		manageSessionPrimersCommand,

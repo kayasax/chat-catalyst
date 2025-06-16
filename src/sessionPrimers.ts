@@ -114,12 +114,12 @@ Today's specific question: `,
     }    async detectWorkspaceContext(): Promise<{ detectedLanguages: string[]; projectInfo: { languages: string; frameworks: string } }> {
         const workspaceFolders = vscode.workspace.workspaceFolders;
         if (!workspaceFolders) {
-            return { 
-                detectedLanguages: [], 
-                projectInfo: { 
-                    languages: 'Various languages', 
-                    frameworks: 'Standard development tools' 
-                } 
+            return {
+                detectedLanguages: [],
+                projectInfo: {
+                    languages: 'Various languages',
+                    frameworks: 'Standard development tools'
+                }
             };
         }
 
