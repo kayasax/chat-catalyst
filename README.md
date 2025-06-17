@@ -11,7 +11,7 @@
 **🎯 One hotkey to rule them all: `Ctrl+Alt+C`**
 
 👉Instantly resume from where you left and get suggestions for next steps:
-![Demo](demo.png)
+![Demo](demo-v2-20250617.png)
 
 </div>
 
