@@ -8,9 +8,9 @@
 [![Rating](https://img.shields.io/visual-studio-marketplace/r/LoicMICHEL.chat-catalyst?color=yellow)](https://marketplace.visualstudio.com/items?itemName=LoicMICHEL.chat-catalyst)
 
 **🔥 Stop typing the same prompt over and over again!**
-**⚡ Lightning-fast prompt injection in 1-2 seconds**
 **🎯 One hotkey to rule them all: `Ctrl+Alt+C`**
 
+👉Instantly resume from where you left and get suggestions for next steps:
 ![Demo](demo.png)
 
 </div>
@@ -28,7 +28,7 @@
 ## ✨ **Do This Instead!**
 ```
 ✅ Press Ctrl+Alt+C
-✅ Your prompt is INSTANTLY injected
+✅ Your starting prompt is injected
 ✅ AI has full context immediately
 ✅ Continue exactly where you left off!
 ```
@@ -68,7 +68,6 @@ Share consistent AI interactions
 | Feature | Benefit | Time Saved |
 |---------|---------|------------|
 | 🎯 **One-Click Injection** | Press `Ctrl+Alt+C` from anywhere in VS Code | **90% less typing** |
-| ⚡ **Lightning Speed** | 1-2 second injection (75% faster than v0.0.6) | **5+ seconds per chat** |
 | 🧠 **Smart Memory** | Persistent context across sessions | **Hours of re-explaining** |
 | 🔄 **Auto-Clipboard Restore** | Seamless workflow integration | **Zero disruption** |
 | 🎛️ **Customizable** | Your prompts, your way | **Infinite possibilities** |

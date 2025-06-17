@@ -1,14 +1,14 @@
 {  "name": "chat-catalyst",
   "displayName": "Chat Catalyst",
   "description": "Auto-inject custom prompts into GitHub Copilot Chat",
-  "version": "0.0.8",
+  "version": "0.1.1",
   "license": "MIT",
   "author": {
     "name": "Loic Michel",
     "email": "loic@yespapa.eu"
   },
   "publisher": "LoicMICHEL",
-  "icon": "tutor.jpeg",
+  "icon": "chatcatalyst.jpeg",
   "repository": {
     "type": "git",
     "url": "https://github.com/kayasax/chat-catalyst"
