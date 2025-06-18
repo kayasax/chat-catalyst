@@ -1,11 +1,3 @@
-// Place your settings in this file to overwrite default and user settings.
 {
-    "files.exclude": {
-        "out": false // set this to true to hide the "out" folder with the compiled JS files
-    },
-    "search.exclude": {
-        "out": true // set this to false to include "out" folder in search results
-    },
-    // Turn off tsc task auto detection since we have the necessary tasks as npm scripts
-    "typescript.tsc.autoDetect": "off"
+  "chatCatalyst.autoPrompt": "This is a very long test prompt that should trigger the Session_starter.md priority logic in Chat Catalyst. Since Session_starter.md exists and has content, the extension should use it instead of creating a new context file. This prompt is deliberately made much longer than 1000 characters to ensure it would normally trigger context file creation, but with the improved logic, the existing Session_starter.md should take priority. The extension should detect this long prompt, recognize that Session_starter.md exists with content, and then reference only the Session_starter.md file using #file: syntax instead of creating an additional context file. This approach provides better organization by leveraging existing project documentation rather than duplicating context. The resulting prompt should be clean and simple: #workspace #file:Session_starter.md with an appropriate message indicating that the session context has been loaded from the existing session starter file rather than a generated context file. This test is specifically designed to verify that even when a prompt exceeds the 1000 character threshold that would normally trigger context file creation, the presence of a valid Session_starter.md file takes precedence and prevents the creation of additional context files. The extension logic should prioritize existing documentation over generating new files, thus maintaining a clean workspace and avoiding duplication of context information."
 }

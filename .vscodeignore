@@ -9,3 +9,19 @@ vsc-extension-quickstart.md
 **/.eslintrc.json
 **/*.map
 **/*.ts
+
+# Test and debug files
+test-*.ps1
+debug-*.ps1
+demo-*.ps1
+verify-*.ps1
+final-*.ps1
+success-*.ps1
+**/*test*.ps1
+**/TEST_*
+**/DEBUG_*
+**/MEMORY_*
+**/*.bat
+compare-versions.ps1
+troubleshoot.ps1
+private/**

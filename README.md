@@ -69,8 +69,14 @@ Share consistent AI interactions
 |---------|---------|------------|
 | 🎯 **One-Click Injection** | Press `Ctrl+Alt+C` from anywhere in VS Code | **90% less typing** |
 | 🧠 **Smart Memory** | Persistent context across sessions | **Hours of re-explaining** |
-| 🔄 **Auto-Clipboard Restore** | Seamless workflow integration | **Zero disruption** |
+| � **Long-Prompt Handling** | Auto-creates context files for prompts >1000 chars | **No chat limits** |
+| 🔗 **Smart File Attachment** | Auto-detects and attaches session_starter.md | **Perfect continuity** |
+| �🔄 **Auto-Clipboard Restore** | Seamless workflow integration | **Zero disruption** |
 | 🎛️ **Customizable** | Your prompts, your way | **Infinite possibilities** |
+
+### 🆕 **NEW in v0.1.3: Smart Long-Prompt Technology**
+- **🤖 Intelligent Detection**: Automatically detects when your prompt is too long (>1000 characters)
+- **🧠 Session Memory**: Auto-attaches `session_starter.md` for perfect project continuity
 
 ---
 
