@@ -2,6 +2,36 @@
 
 All notable changes to the Chat Catalyst extension will be documented in this file.
 
+## [0.2.0] - 2025-07-02
+
+### 🚀 **Major New Features - Session Continuity Bootstrap**
+- **Auto-creation of session infrastructure**: Extension now automatically creates `.github/copilot-instructions.md` and `Session_starter.md` for new projects
+- **Smart project type detection**: Automatically detects React, Node.js, Python, Vue, Angular, Rust, Go, Java, .NET, and other project types
+- **Intelligent session startup**: Prioritizes session continuity over old auto-prompt logic - always creates proper session files
+- **One-click team setup**: Press `Ctrl+Alt+C` in any folder to instantly bootstrap session continuity infrastructure
+
+### ✨ **Enhanced Session Management**
+- **Project-specific templates**: Session_starter.md templates customized for detected project type with relevant technologies and commands
+- **Native VS Code integration**: Leverages `.github/copilot-instructions.md` for persistent behavior instructions across all conversations
+- **Session startup prompts**: Clean `#file:Session_starter.md` references instead of temporary context files
+- **Graceful empty folder handling**: Works perfectly in empty directories with generic development project templates
+
+### 🛠️ **Technical Improvements**
+- **Priority logic overhaul**: Session continuity setup now takes precedence over legacy auto-prompt functionality
+- **Better workspace detection**: Enhanced project type detection logic with comprehensive file pattern matching
+- **Command registration cleanup**: Improved extension activation and command management
+- **Debug capabilities**: Added test commands for extension validation and troubleshooting
+
+### 🔧 **Architecture Changes**
+- **Bootstrap-first approach**: Extension now focuses on creating session infrastructure rather than just prompt injection
+- **Template system**: Modular project type templates with appropriate technology stacks and common commands
+- **Fallback handling**: Intelligent fallback to auto-prompt logic only when session files cannot be created
+
+### 📚 **Validation & Testing**
+- **Comprehensive testing**: Successfully validated in both new project scenarios and completely empty folders
+- **Cross-platform compatibility**: Tested on Windows with PowerShell integration
+- **Extension Development Host**: Full validation using VS Code's extension development environment
+
 ## [0.1.3] - 2025-06-18
 
 ### 🐛 **Critical Bug Fixes**

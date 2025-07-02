@@ -210,14 +210,19 @@ This section is maintained by the AI assistant to track important context and de
 				}
 			}
 		}
-
-		// Common important files
-		const importantFiles = ['README.md', 'package.json', 'tsconfig.json'];
-		for (const file of importantFiles) {
-			const filePath = path.join(basePath, file);
-			if (fs.existsSync(filePath)) {
-				relevantFiles.push(file);
+		// Common important files - ONLY add these if Session_starter.md was NOT found
+		// This ensures Session_starter.md always has priority over README.md
+		if (relevantFiles.length === 0) {
+			console.log(`📋 No Session_starter.md found, adding other important files...`);
+			const importantFiles = ['README.md', 'package.json', 'tsconfig.json'];
+			for (const file of importantFiles) {
+				const filePath = path.join(basePath, file);
+				if (fs.existsSync(filePath)) {
+					relevantFiles.push(file);
+				}
 			}
+		} else {
+			console.log(`🎯 Session_starter.md found - skipping other files to maintain priority`);
 		}
 
 		console.log(`📁 Final relevant files list: ${relevantFiles.join(', ')}`);
@@ -343,17 +348,22 @@ Ready to help with your project! 🚀`;
 					console.log(`📋 Prompt preview: ${richPrompt.substring(0, 200)}...`);
 					return richPrompt;				} catch (error) {
 					console.error('❌ Could not create workspace context file:', error);
-					console.log('🔄 Falling back to direct context inclusion...');
-
-					// Fallback: include context in prompt directly but with attachments
+					console.log('🔄 Falling back to direct context inclusion...');					// Fallback: include context in prompt directly but with attachments
 					const fallbackFiles = getRelevantProjectFiles();
 					let fallbackPrompt = '#workspace ';
-
-					// Add session starter if available
+					
+					// Add session starter if available - PRIORITIZE IT OVER ALL OTHER FILES
 					const fallbackSessionStarter = fallbackFiles.find(f => f.includes('Session_starter.md'));
 					if (fallbackSessionStarter) {
 						fallbackPrompt += `#file:${fallbackSessionStarter} `;
-						console.log(`📎 Attached session starter: ${fallbackSessionStarter}`);
+						console.log(`📎 Attached session starter (PRIORITY): ${fallbackSessionStarter}`);
+					} else {
+						// Only add other files if Session_starter.md is NOT available
+						const otherFallbackFiles = fallbackFiles.slice(0, 1); // Just one other file
+						for (const file of otherFallbackFiles) {
+							fallbackPrompt += `#file:${file} `;
+							console.log(`📎 Attached fallback file: ${file}`);
+						}
 					}
 
 					fallbackPrompt += `
@@ -380,11 +390,15 @@ Ready to help with your project! 🚀`;
 		if (finalSessionStarter) {
 			richPrompt += `#file:${finalSessionStarter} `;
 		}
-
-		// Add other important files (limit to avoid overload)
-		const otherFiles = finalRelevantFiles.filter(f => !f.includes('Session_starter.md')).slice(0, 2);
-		for (const file of otherFiles) {
-			richPrompt += `#file:${file} `;
+		// Add other important files (limit to avoid overload) - ONLY if we don't have Session_starter.md
+		// Session_starter.md should be the ONLY file when available to maintain priority
+		if (!finalSessionStarter) {
+			const otherFiles = finalRelevantFiles.filter(f => !f.includes('Session_starter.md')).slice(0, 2);
+			for (const file of otherFiles) {
+				richPrompt += `#file:${file} `;
+			}
+		} else {
+			console.log(`🎯 Session_starter.md found - skipping other files to maintain priority`);
 		}
 
 		richPrompt += '\n\n' + autoPrompt;
@@ -478,34 +492,7 @@ Ready to help with your project! 🚀`;
 		}
 	}
 	// Register commands with proper disposable tracking
-	const startChatCommand = vscode.commands.registerCommand('chatCatalyst.startChat', async () => {		if (state.isExecuting) {
-			console.log('⏳ Already executing, skipping...');
-			return;
-		}
-
-		state.isExecuting = true;
-
-		try {
-			const autoPrompt = getAutoPrompt();
-			if (!autoPrompt) {
-				vscode.window.showInformationMessage('No auto-prompt configured. Use "Edit Auto-Prompt" to set one up.');
-				return;
-			}
-
-			// Open Copilot Chat
-			await vscode.commands.executeCommand('workbench.panel.chat.view.copilot.focus');
-			await new Promise(resolve => setTimeout(resolve, 500));
-
-			// Inject smart prompt
-			const success = await injectSmartPrompt();
-			if (!success) {
-				vscode.window.showWarningMessage('Failed to inject prompt. Chat might not be focused.');
-			}		} finally {
-			createManagedTimer(() => {
-				state.isExecuting = false;
-			}, 1000);
-		}
-	});
+	const startChatCommand = vscode.commands.registerCommand('chatCatalyst.startChat', enhancedStartChat);
 
 	// Other commands remain the same...
 	const editPromptCommand = vscode.commands.registerCommand('chatCatalyst.editPrompt', async () => {
@@ -531,9 +518,26 @@ Ready to help with your project! 🚀`;
 		vscode.window.showInformationMessage(`Chat Catalyst ${!currentEnabled ? 'enabled' : 'disabled'}!`);
 	});
 
+	// Add test command to verify extension is working
+	const testCommand = vscode.commands.registerCommand('chatCatalyst.test', async () => {
+		console.log('🧪 Test command executed!');
+		vscode.window.showInformationMessage('✅ Chat Catalyst extension is working! Check the console for logs.');
+		
+		// Test workspace detection
+		const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+		if (workspaceFolder) {
+			console.log(`📁 Workspace detected: ${workspaceFolder.uri.fsPath}`);
+			const projectType = await detectProjectType();
+			console.log(`🔍 Project type detected: ${projectType}`);
+			vscode.window.showInformationMessage(`Workspace: ${workspaceFolder.name}, Project Type: ${projectType}`);
+		} else {
+			vscode.window.showWarningMessage('No workspace folder detected!');
+		}
+	});
+
 	// Track all disposables properly
-	state.disposables.push(startChatCommand, editPromptCommand, toggleCommand);
-	context.subscriptions.push(startChatCommand, editPromptCommand, toggleCommand);
+	state.disposables.push(startChatCommand, editPromptCommand, toggleCommand, testCommand);
+	context.subscriptions.push(startChatCommand, editPromptCommand, toggleCommand, testCommand);
 
 	// Register cleanup to be called on deactivation
 	const cleanupDisposable = {
@@ -541,6 +545,436 @@ Ready to help with your project! 🚀`;
 	};
 	context.subscriptions.push(cleanupDisposable);
 	state.disposables.push(cleanupDisposable);
+
+	// New Session Continuity Setup Functions
+	
+	// Check if custom instructions file exists
+	async function checkCustomInstructions(): Promise<boolean> {
+		const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+		if (!workspaceFolder) {
+			return false;
+		}
+		
+		const customInstructionsPath = path.join(workspaceFolder.uri.fsPath, '.github', 'copilot-instructions.md');
+		return fs.existsSync(customInstructionsPath);
+	}
+
+	// Create custom instructions file for session continuity
+	async function createCustomInstructions(): Promise<void> {
+		const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+		if (!workspaceFolder) {
+			return;
+		}
+
+		const githubDir = path.join(workspaceFolder.uri.fsPath, '.github');
+		const customInstructionsPath = path.join(githubDir, 'copilot-instructions.md');
+
+		// Ensure .github directory exists
+		if (!fs.existsSync(githubDir)) {
+			fs.mkdirSync(githubDir, { recursive: true });
+		}
+
+		const instructionsContent = `# 🧠 Session Continuity Instructions for GitHub Copilot
+
+## Core Session Management Behaviors
+
+**ALWAYS when starting any session:**
+1. 📘 Look for \`Session_starter.md\` when beginning work in any workspace
+2. 🔄 Update \`Session_starter.md\` with progress, decisions, and discoveries throughout the session
+3. 🎯 Follow established patterns and technical decisions from session files
+4. 📅 Add significant changes to update log using format: \`| Date | Summary |\`
+5. ✅ Mark completed next steps as \`[x] ✅ COMPLETED\`
+6. 🔍 Reference session context when making technical decisions
+
+**Session File Priority:**
+- Always prioritize \`Session_starter.md\` over \`README.md\` for project context
+- Scan workspace root, parent directory, and common subdirectories for session files
+- If no session file exists, offer to create one for future continuity
+
+**Update Discipline:**
+- Add meaningful progress to the update log section
+- Update "Assistant Memory" section with new discoveries and learnings
+- Maintain professional, concise update format
+- Track technical constraints, architecture decisions, and solved problems
+
+**Productivity Focus:**
+- Leverage session memory to avoid re-explaining established context
+- Build upon previous session achievements and patterns
+- Maintain consistency in coding style and architectural approaches
+- Provide seamless continuity across development sessions
+
+## Project Context Awareness
+
+When working on development projects:
+- Follow established technology stack patterns from session memory
+- Reference previous debugging solutions and architectural decisions
+- Maintain consistency with team coding standards documented in session files
+- Build incrementally on documented progress and achievements
+
+**This ensures consistent, productive development sessions with persistent project memory across all interactions.**`;
+
+		fs.writeFileSync(customInstructionsPath, instructionsContent);
+		console.log(`✅ Created custom instructions: ${customInstructionsPath}`);
+	}
+
+	// Detect project type based on files and structure
+	async function detectProjectType(): Promise<string> {
+		const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+		if (!workspaceFolder) {
+			return 'general';
+		}
+
+		const basePath = workspaceFolder.uri.fsPath;
+
+		// Check for specific project indicators
+		if (fs.existsSync(path.join(basePath, 'package.json'))) {
+			const packageJson = JSON.parse(fs.readFileSync(path.join(basePath, 'package.json'), 'utf8'));
+			
+			// Check for specific frameworks
+			if (packageJson.dependencies?.react || packageJson.devDependencies?.react) {
+				return 'react';
+			}
+			if (packageJson.dependencies?.next || packageJson.devDependencies?.next) {
+				return 'nextjs';
+			}
+			if (packageJson.dependencies?.vue || packageJson.devDependencies?.vue) {
+				return 'vue';
+			}
+			if (packageJson.dependencies?.angular || packageJson.devDependencies?.angular) {
+				return 'angular';
+			}
+			if (packageJson.dependencies?.express || packageJson.devDependencies?.express) {
+				return 'nodejs-express';
+			}
+			if (packageJson.dependencies?.vscode || packageJson.devDependencies?.vscode) {
+				return 'vscode-extension';
+			}
+			
+			return 'nodejs';
+		}
+
+		if (fs.existsSync(path.join(basePath, 'requirements.txt')) || fs.existsSync(path.join(basePath, 'pyproject.toml'))) {
+			return 'python';
+		}
+
+		if (fs.existsSync(path.join(basePath, 'Cargo.toml'))) {
+			return 'rust';
+		}
+		if (fs.existsSync(path.join(basePath, 'go.mod'))) {
+			return 'go';
+		}
+		if (fs.existsSync(path.join(basePath, 'pom.xml')) || fs.existsSync(path.join(basePath, 'build.gradle'))) {
+			return 'java';
+		}
+		if (fs.existsSync(path.join(basePath, '*.csproj')) || fs.existsSync(path.join(basePath, '*.sln'))) {
+			return 'dotnet';
+		}
+
+		return 'general';
+	}
+
+	// Create Session_starter.md template based on project type
+	async function createSessionStarter(projectType: string): Promise<void> {
+		const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+		if (!workspaceFolder) {
+			return;
+		}
+
+		const sessionStarterPath = path.join(workspaceFolder.uri.fsPath, 'Session_starter.md');
+		if (fs.existsSync(sessionStarterPath)) {
+			return; // Don't overwrite existing file
+		}
+
+		const projectName = path.basename(workspaceFolder.uri.fsPath);
+		const currentDate = new Date().toISOString().split('T')[0];
+
+		const sessionContent = generateSessionTemplate(projectName, projectType, currentDate);
+		fs.writeFileSync(sessionStarterPath, sessionContent);
+		console.log(`✅ Created Session_starter.md for ${projectType} project: ${sessionStarterPath}`);
+	}
+
+	// Generate session template based on project type
+	function generateSessionTemplate(projectName: string, projectType: string, date: string): string {
+		const techStack = getTechStackForProjectType(projectType);
+		const commonCommands = getCommonCommandsForProjectType(projectType);
+
+		return `# 🧠 AI Session Starter: ${projectName}
+
+*Project memory file for AI assistant session continuity. Auto-referenced by custom instructions.*
+
+---
+
+## 📘 Project Context
+**Project:** ${projectName}  
+**Type:** ${techStack.type}  
+**Purpose:** [Describe the project purpose and goals]  
+**Status:** 🚀 New project setup
+
+**Core Technologies:**
+${techStack.technologies.map(tech => `- ${tech}`).join('\n')}
+
+---
+
+## 🎯 Current State
+**Build Status:** 🔄 In development  
+**Key Achievement:** Project initialized with session continuity  
+**Active Issue:** None - ready for development
+
+**Architecture Highlights:**
+- [Add key architectural decisions]
+- [Document important patterns or constraints]
+- [Note any special setup requirements]
+
+---
+
+## 🧠 Technical Memory
+
+**Critical Discoveries:**
+- Project created with Chat Catalyst session continuity setup
+- Custom instructions configured for consistent AI interactions
+- Session starter template customized for ${projectType} development
+
+**Performance Insights:**
+- [Add performance-related discoveries]
+- [Document optimization decisions]
+
+**Known Constraints:**
+- [Document any technical limitations]
+- [Note dependency requirements]
+- [Add environment-specific considerations]
+
+---
+
+## 🚀 Recent Achievements
+| Date | Achievement |
+|------|-------------|
+| ${date} | ✅ Project initialized with session continuity infrastructure |
+| ${date} | ✅ ${techStack.type} development environment configured |
+
+---
+
+## 📋 Active Priorities
+- [ ] 🏗️ Complete initial project setup
+- [ ] 📦 Configure build pipeline
+- [ ] 🧪 Set up testing framework
+- [ ] 📚 Document core architecture decisions
+- [ ] 🚀 Implement first features
+
+---
+
+## 🔧 Development Environment
+**Common Commands:**
+${commonCommands.map(cmd => `- \`${cmd}\``).join('\n')}
+
+**Key Files:** [Document important project files]  
+**Setup Requirements:** [List setup steps for new team members]
+
+---
+
+*This file serves as persistent project memory for enhanced AI assistant session continuity.*`;
+	}
+
+	// Get technology stack information for project type
+	function getTechStackForProjectType(projectType: string): { type: string; technologies: string[] } {
+		const stacks: Record<string, { type: string; technologies: string[] }> = {
+			'react': {
+				type: 'React Web Application',
+				technologies: ['React', 'JavaScript/TypeScript', 'HTML/CSS', 'Node.js', 'Webpack/Vite']
+			},
+			'nextjs': {
+				type: 'Next.js Full-Stack Application',
+				technologies: ['Next.js', 'React', 'TypeScript', 'Node.js', 'Vercel/SSR']
+			},
+			'vue': {
+				type: 'Vue.js Web Application',
+				technologies: ['Vue.js', 'JavaScript/TypeScript', 'HTML/CSS', 'Node.js', 'Vite']
+			},
+			'angular': {
+				type: 'Angular Web Application',
+				technologies: ['Angular', 'TypeScript', 'HTML/CSS', 'Node.js', 'Angular CLI']
+			},
+			'nodejs': {
+				type: 'Node.js Application',
+				technologies: ['Node.js', 'JavaScript/TypeScript', 'NPM/Yarn', 'Express/Fastify']
+			},
+			'nodejs-express': {
+				type: 'Node.js Express Application',
+				technologies: ['Node.js', 'Express.js', 'JavaScript/TypeScript', 'NPM/Yarn']
+			},
+			'vscode-extension': {
+				type: 'VS Code Extension',
+				technologies: ['TypeScript', 'VS Code Extension API', 'Node.js', 'Webpack']
+			},
+			'python': {
+				type: 'Python Application',
+				technologies: ['Python', 'pip/poetry', 'Virtual Environment', 'pytest']
+			},
+			'rust': {
+				type: 'Rust Application',
+				technologies: ['Rust', 'Cargo', 'rustc', 'Crates.io']
+			},
+			'go': {
+				type: 'Go Application',
+				technologies: ['Go', 'Go Modules', 'go build', 'go test']
+			},
+			'java': {
+				type: 'Java Application',
+				technologies: ['Java', 'Maven/Gradle', 'JUnit', 'Spring Framework']
+			},
+			'dotnet': {
+				type: '.NET Application',
+				technologies: ['.NET Core/Framework', 'C#', 'NuGet', 'MSBuild']
+			}
+		};
+
+		return stacks[projectType] || {
+			type: 'General Development Project',
+			technologies: ['Various technologies', 'Project-specific tools']
+		};
+	}
+
+	// Get common commands for project type
+	function getCommonCommandsForProjectType(projectType: string): string[] {
+		const commands: Record<string, string[]> = {
+			'react': ['npm start', 'npm run build', 'npm test', 'npm install'],
+			'nextjs': ['npm run dev', 'npm run build', 'npm run start', 'npm install'],
+			'vue': ['npm run serve', 'npm run build', 'npm test', 'npm install'],
+			'angular': ['ng serve', 'ng build', 'ng test', 'npm install'],
+			'nodejs': ['npm start', 'npm run dev', 'npm test', 'npm install'],
+			'nodejs-express': ['npm start', 'npm run dev', 'npm test', 'npm install'],
+			'vscode-extension': ['npm run compile', 'npm run watch', 'npm run test', 'F5 (Debug)'],
+			'python': ['python main.py', 'pip install -r requirements.txt', 'pytest', 'python -m venv venv'],
+			'rust': ['cargo run', 'cargo build', 'cargo test', 'cargo check'],
+			'go': ['go run .', 'go build', 'go test', 'go mod tidy'],
+			'java': ['mvn spring-boot:run', 'mvn clean install', 'mvn test', 'gradle build'],
+			'dotnet': ['dotnet run', 'dotnet build', 'dotnet test', 'dotnet restore']
+		};
+
+		return commands[projectType] || ['[Add project-specific commands]'];
+	}
+
+	// Build session startup prompt that references Session_starter.md
+	async function buildSessionStartupPrompt(): Promise<string> {
+		return `#file:Session_starter.md 
+
+🎯 **Session Context Loaded**
+
+I've attached the Session_starter.md file which contains the project context and current state for this session. Please:
+
+1. **Review the session file** for project overview, current status, and established patterns
+2. **Follow the documented technical decisions** and architectural patterns
+3. **Update the session file** as we make progress with new discoveries and achievements
+4. **Maintain project continuity** by building upon previous session work
+
+Ready to continue where we left off! 🚀`;
+	}
+
+	// Enhanced startChat command that handles session continuity setup
+	async function enhancedStartChat(): Promise<void> {
+		if (state.isExecuting) {
+			console.log('⏳ Already executing, skipping...');
+			return;
+		}
+
+		state.isExecuting = true;
+
+		try {
+			const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+			if (!workspaceFolder) {
+				vscode.window.showErrorMessage('No workspace folder open. Please open a project folder first.');
+				return;
+			}
+
+			console.log('🚀 Starting enhanced Chat Catalyst...');
+
+			// Check if this is a new project setup
+			const hasCustomInstructions = await checkCustomInstructions();
+			const sessionStarterPath = path.join(workspaceFolder.uri.fsPath, 'Session_starter.md');
+			let sessionStarterExists = fs.existsSync(sessionStarterPath);
+
+			const setupChanges: string[] = [];
+
+			// Create custom instructions if missing
+			if (!hasCustomInstructions) {
+				await createCustomInstructions();
+				setupChanges.push('Created .github/copilot-instructions.md for session continuity');
+			}
+
+			// Create Session_starter.md if missing
+			if (!sessionStarterExists) {
+				const projectType = await detectProjectType();
+				await createSessionStarter(projectType);
+				setupChanges.push(`Created Session_starter.md template for ${projectType} project`);
+				sessionStarterExists = true; // Update flag since we just created it
+			}
+
+			// Show setup confirmation if we created files
+			if (setupChanges.length > 0) {
+				const message = `🎯 Session Continuity Setup Complete!\n\n${setupChanges.join('\n')}\n\nYour project now has persistent AI memory across sessions!`;
+				vscode.window.showInformationMessage(message);
+			}
+
+			// Open Copilot Chat
+			await vscode.commands.executeCommand('workbench.panel.chat.view.copilot.focus');
+			await new Promise(resolve => setTimeout(resolve, 500));
+
+			// Always prioritize session startup prompt if Session_starter.md exists or was just created
+			if (sessionStarterExists) {
+				console.log('🎯 Using session startup prompt - Session_starter.md exists');
+				const promptToUse = await buildSessionStartupPrompt();
+				const success = await injectPromptToChat(promptToUse);
+				if (!success) {
+					vscode.window.showWarningMessage('Failed to inject session startup prompt. Chat might not be focused.');
+				} else {
+					console.log('✅ Session startup prompt injected successfully');
+				}
+			} else {
+				// Fallback to old auto-prompt logic only if no Session_starter.md
+				console.log('📋 No Session_starter.md found, falling back to auto-prompt logic');
+				const autoPrompt = getAutoPrompt();
+				
+				if (autoPrompt && autoPrompt.length > 1000) {
+					// Use existing long prompt logic
+					const success = await injectSmartPrompt();
+					if (!success) {
+						vscode.window.showWarningMessage('Failed to inject prompt. Chat might not be focused.');
+					}
+				} else if (autoPrompt) {
+					// Use short auto-prompt
+					const success = await injectPromptToChat(autoPrompt);
+					if (!success) {
+						vscode.window.showWarningMessage('Failed to inject auto-prompt. Chat might not be focused.');
+					}
+				} else {
+					// No auto-prompt configured
+					vscode.window.showInformationMessage('Chat Catalyst activated! Configure an auto-prompt in settings or create a Session_starter.md file.');
+				}
+			}
+
+		} finally {
+			createManagedTimer(() => {
+				state.isExecuting = false;
+			}, 1000);
+		}
+	}
+
+	// Helper function to inject any prompt to chat
+	async function injectPromptToChat(prompt: string): Promise<boolean> {
+		try {
+			// Focus chat and wait
+			await vscode.commands.executeCommand('workbench.panel.chat.view.copilot.focus');
+			await new Promise(resolve => setTimeout(resolve, 300));
+
+			// Type the prompt
+			await vscode.commands.executeCommand('type', { text: prompt });
+			console.log(`📝 Injected prompt (${prompt.length} characters)`);
+			
+			return true;
+		} catch (error) {
+			console.error('❌ Failed to inject prompt:', error);
+			return false;
+		}
+	}
 }
 
 export function deactivate() {

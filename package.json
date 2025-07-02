@@ -1,7 +1,7 @@
 {  "name": "chat-catalyst",
   "displayName": "Chat Catalyst",
-  "description": "Auto-inject custom prompts into GitHub Copilot Chat with smart long-prompt handling",
-  "version": "0.1.3",
+  "description": "Auto-inject custom prompts into GitHub Copilot Chat with smart long-prompt handling and session continuity setup",
+  "version": "0.2.0",
   "license": "MIT",
   "author": {
     "name": "Loic Michel",
