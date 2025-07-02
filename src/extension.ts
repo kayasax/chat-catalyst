@@ -351,7 +351,7 @@ Ready to help with your project! 🚀`;
 					console.log('🔄 Falling back to direct context inclusion...');					// Fallback: include context in prompt directly but with attachments
 					const fallbackFiles = getRelevantProjectFiles();
 					let fallbackPrompt = '#workspace ';
-					
+
 					// Add session starter if available - PRIORITIZE IT OVER ALL OTHER FILES
 					const fallbackSessionStarter = fallbackFiles.find(f => f.includes('Session_starter.md'));
 					if (fallbackSessionStarter) {
@@ -522,7 +522,7 @@ Ready to help with your project! 🚀`;
 	const testCommand = vscode.commands.registerCommand('chatCatalyst.test', async () => {
 		console.log('🧪 Test command executed!');
 		vscode.window.showInformationMessage('✅ Chat Catalyst extension is working! Check the console for logs.');
-		
+
 		// Test workspace detection
 		const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
 		if (workspaceFolder) {
@@ -535,9 +535,49 @@ Ready to help with your project! 🚀`;
 		}
 	});
 
+	// Add template editing commands
+	const editCustomInstructionsCommand = vscode.commands.registerCommand('chatCatalyst.editCustomInstructions', async () => {
+		await vscode.commands.executeCommand('workbench.action.openSettings', 'chatCatalyst.customInstructionsTemplate');
+	});
+
+	const editSessionStarterCommand = vscode.commands.registerCommand('chatCatalyst.editSessionStarter', async () => {
+		await vscode.commands.executeCommand('workbench.action.openSettings', 'chatCatalyst.sessionStarterTemplate');
+	});
+
+	const resetTemplatesCommand = vscode.commands.registerCommand('chatCatalyst.resetTemplates', async () => {
+		const result = await vscode.window.showWarningMessage(
+			'Reset templates to default? This will overwrite your customizations.',
+			{ modal: true },
+			'Reset', 'Cancel'
+		);
+		
+		if (result === 'Reset') {
+			const config = vscode.workspace.getConfiguration('chatCatalyst');
+			await config.update('customInstructionsTemplate', undefined, vscode.ConfigurationTarget.Global);
+			await config.update('sessionStarterTemplate', undefined, vscode.ConfigurationTarget.Global);
+			vscode.window.showInformationMessage('✅ Templates reset to default!');
+		}
+	});
+
 	// Track all disposables properly
-	state.disposables.push(startChatCommand, editPromptCommand, toggleCommand, testCommand);
-	context.subscriptions.push(startChatCommand, editPromptCommand, toggleCommand, testCommand);
+	state.disposables.push(
+		startChatCommand, 
+		editPromptCommand, 
+		toggleCommand, 
+		testCommand,
+		editCustomInstructionsCommand,
+		editSessionStarterCommand,
+		resetTemplatesCommand
+	);
+	context.subscriptions.push(
+		startChatCommand, 
+		editPromptCommand, 
+		toggleCommand, 
+		testCommand,
+		editCustomInstructionsCommand,
+		editSessionStarterCommand,
+		resetTemplatesCommand
+	);
 
 	// Register cleanup to be called on deactivation
 	const cleanupDisposable = {
@@ -547,14 +587,14 @@ Ready to help with your project! 🚀`;
 	state.disposables.push(cleanupDisposable);
 
 	// New Session Continuity Setup Functions
-	
+
 	// Check if custom instructions file exists
 	async function checkCustomInstructions(): Promise<boolean> {
 		const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
 		if (!workspaceFolder) {
 			return false;
 		}
-		
+
 		const customInstructionsPath = path.join(workspaceFolder.uri.fsPath, '.github', 'copilot-instructions.md');
 		return fs.existsSync(customInstructionsPath);
 	}
@@ -574,44 +614,29 @@ Ready to help with your project! 🚀`;
 			fs.mkdirSync(githubDir, { recursive: true });
 		}
 
-		const instructionsContent = `# 🧠 Session Continuity Instructions for GitHub Copilot
+		// Get template from settings
+		const config = vscode.workspace.getConfiguration('chatCatalyst');
+		const templateContent = config.get<string>('customInstructionsTemplate', '');
+		
+		// Debug logging
+		console.log('🔍 Debug: Reading custom instructions template from settings...');
+		console.log('📝 Template length:', templateContent.length);
+		console.log('📝 Template starts with:', templateContent.substring(0, 100));
+		
+		// Apply template variables
+		const projectName = path.basename(workspaceFolder.uri.fsPath);
+		const projectType = await detectProjectType();
+		const currentDate = new Date().toISOString().split('T')[0];
+		
+		console.log('🔧 Variables:', { projectName, projectType, currentDate });
+		
+		const instructionsContent = templateContent
+			.replace(/\{\{PROJECT_NAME\}\}/g, projectName)
+			.replace(/\{\{PROJECT_TYPE\}\}/g, projectType)
+			.replace(/\{\{DATE\}\}/g, currentDate);
 
-## Core Session Management Behaviors
-
-**ALWAYS when starting any session:**
-1. 📘 Look for \`Session_starter.md\` when beginning work in any workspace
-2. 🔄 Update \`Session_starter.md\` with progress, decisions, and discoveries throughout the session
-3. 🎯 Follow established patterns and technical decisions from session files
-4. 📅 Add significant changes to update log using format: \`| Date | Summary |\`
-5. ✅ Mark completed next steps as \`[x] ✅ COMPLETED\`
-6. 🔍 Reference session context when making technical decisions
-
-**Session File Priority:**
-- Always prioritize \`Session_starter.md\` over \`README.md\` for project context
-- Scan workspace root, parent directory, and common subdirectories for session files
-- If no session file exists, offer to create one for future continuity
-
-**Update Discipline:**
-- Add meaningful progress to the update log section
-- Update "Assistant Memory" section with new discoveries and learnings
-- Maintain professional, concise update format
-- Track technical constraints, architecture decisions, and solved problems
-
-**Productivity Focus:**
-- Leverage session memory to avoid re-explaining established context
-- Build upon previous session achievements and patterns
-- Maintain consistency in coding style and architectural approaches
-- Provide seamless continuity across development sessions
-
-## Project Context Awareness
-
-When working on development projects:
-- Follow established technology stack patterns from session memory
-- Reference previous debugging solutions and architectural decisions
-- Maintain consistency with team coding standards documented in session files
-- Build incrementally on documented progress and achievements
-
-**This ensures consistent, productive development sessions with persistent project memory across all interactions.**`;
+		console.log('📄 Final content length:', instructionsContent.length);
+		console.log('📄 Final content starts with:', instructionsContent.substring(0, 100));
 
 		fs.writeFileSync(customInstructionsPath, instructionsContent);
 		console.log(`✅ Created custom instructions: ${customInstructionsPath}`);
@@ -629,7 +654,7 @@ When working on development projects:
 		// Check for specific project indicators
 		if (fs.existsSync(path.join(basePath, 'package.json'))) {
 			const packageJson = JSON.parse(fs.readFileSync(path.join(basePath, 'package.json'), 'utf8'));
-			
+
 			// Check for specific frameworks
 			if (packageJson.dependencies?.react || packageJson.devDependencies?.react) {
 				return 'react';
@@ -649,7 +674,7 @@ When working on development projects:
 			if (packageJson.dependencies?.vscode || packageJson.devDependencies?.vscode) {
 				return 'vscode-extension';
 			}
-			
+
 			return 'nodejs';
 		}
 
@@ -698,80 +723,21 @@ When working on development projects:
 		const techStack = getTechStackForProjectType(projectType);
 		const commonCommands = getCommonCommandsForProjectType(projectType);
 
-		return `# 🧠 AI Session Starter: ${projectName}
-
-*Project memory file for AI assistant session continuity. Auto-referenced by custom instructions.*
-
----
-
-## 📘 Project Context
-**Project:** ${projectName}  
-**Type:** ${techStack.type}  
-**Purpose:** [Describe the project purpose and goals]  
-**Status:** 🚀 New project setup
-
-**Core Technologies:**
-${techStack.technologies.map(tech => `- ${tech}`).join('\n')}
-
----
-
-## 🎯 Current State
-**Build Status:** 🔄 In development  
-**Key Achievement:** Project initialized with session continuity  
-**Active Issue:** None - ready for development
-
-**Architecture Highlights:**
-- [Add key architectural decisions]
-- [Document important patterns or constraints]
-- [Note any special setup requirements]
-
----
-
-## 🧠 Technical Memory
-
-**Critical Discoveries:**
-- Project created with Chat Catalyst session continuity setup
-- Custom instructions configured for consistent AI interactions
-- Session starter template customized for ${projectType} development
-
-**Performance Insights:**
-- [Add performance-related discoveries]
-- [Document optimization decisions]
-
-**Known Constraints:**
-- [Document any technical limitations]
-- [Note dependency requirements]
-- [Add environment-specific considerations]
-
----
-
-## 🚀 Recent Achievements
-| Date | Achievement |
-|------|-------------|
-| ${date} | ✅ Project initialized with session continuity infrastructure |
-| ${date} | ✅ ${techStack.type} development environment configured |
-
----
-
-## 📋 Active Priorities
-- [ ] 🏗️ Complete initial project setup
-- [ ] 📦 Configure build pipeline
-- [ ] 🧪 Set up testing framework
-- [ ] 📚 Document core architecture decisions
-- [ ] 🚀 Implement first features
-
----
-
-## 🔧 Development Environment
-**Common Commands:**
-${commonCommands.map(cmd => `- \`${cmd}\``).join('\n')}
-
-**Key Files:** [Document important project files]  
-**Setup Requirements:** [List setup steps for new team members]
-
----
-
-*This file serves as persistent project memory for enhanced AI assistant session continuity.*`;
+		// Get template from settings
+		const config = vscode.workspace.getConfiguration('chatCatalyst');
+		const templateContent = config.get<string>('sessionStarterTemplate', '');
+		
+		// Prepare tech stack string
+		const techStackString = techStack.technologies.map(tech => `- ${tech}`).join('\n');
+		const commonCommandsString = commonCommands.map(cmd => `- \`${cmd}\``).join('\n');
+		
+		// Apply template variables
+		return templateContent
+			.replace(/\{\{PROJECT_NAME\}\}/g, projectName)
+			.replace(/\{\{PROJECT_TYPE\}\}/g, techStack.type)
+			.replace(/\{\{DATE\}\}/g, date)
+			.replace(/\{\{TECH_STACK\}\}/g, techStackString)
+			.replace(/\{\{COMMON_COMMANDS\}\}/g, commonCommandsString);
 	}
 
 	// Get technology stack information for project type
@@ -855,7 +821,7 @@ ${commonCommands.map(cmd => `- \`${cmd}\``).join('\n')}
 
 	// Build session startup prompt that references Session_starter.md
 	async function buildSessionStartupPrompt(): Promise<string> {
-		return `#file:Session_starter.md 
+		return `#file:Session_starter.md
 
 🎯 **Session Context Loaded**
 
@@ -894,13 +860,15 @@ Ready to continue where we left off! 🚀`;
 
 			const setupChanges: string[] = [];
 
-			// Create custom instructions if missing
+			// Always create/update custom instructions to reflect template changes
+			await createCustomInstructions();
 			if (!hasCustomInstructions) {
-				await createCustomInstructions();
 				setupChanges.push('Created .github/copilot-instructions.md for session continuity');
+			} else {
+				setupChanges.push('Updated .github/copilot-instructions.md with latest template');
 			}
 
-			// Create Session_starter.md if missing
+			// Create Session_starter.md if missing (don't overwrite existing)
 			if (!sessionStarterExists) {
 				const projectType = await detectProjectType();
 				await createSessionStarter(projectType);
@@ -932,7 +900,7 @@ Ready to continue where we left off! 🚀`;
 				// Fallback to old auto-prompt logic only if no Session_starter.md
 				console.log('📋 No Session_starter.md found, falling back to auto-prompt logic');
 				const autoPrompt = getAutoPrompt();
-				
+
 				if (autoPrompt && autoPrompt.length > 1000) {
 					// Use existing long prompt logic
 					const success = await injectSmartPrompt();
@@ -968,7 +936,7 @@ Ready to continue where we left off! 🚀`;
 			// Type the prompt
 			await vscode.commands.executeCommand('type', { text: prompt });
 			console.log(`📝 Injected prompt (${prompt.length} characters)`);
-			
+
 			return true;
 		} catch (error) {
 			console.error('❌ Failed to inject prompt:', error);

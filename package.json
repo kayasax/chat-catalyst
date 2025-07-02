@@ -1,7 +1,7 @@
 {  "name": "chat-catalyst",
   "displayName": "Chat Catalyst",
   "description": "Auto-inject custom prompts into GitHub Copilot Chat with smart long-prompt handling and session continuity setup",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "license": "MIT",
   "author": {
     "name": "Loic Michel",
@@ -38,6 +38,20 @@
           "default": true,
           "description": "Enable automatic prompt injection",
           "scope": "window"
+        },
+        "chatCatalyst.customInstructionsTemplate": {
+          "type": "string",
+          "default": "# 🧠 Session Continuity Instructions for GitHub Copilot\n\n## Core Session Management Behaviors\n\n**ALWAYS when starting any session:**\n1. 📘 Look for `Session_starter.md` when beginning work in any workspace\n2. 🔄 Update `Session_starter.md` with progress, decisions, and discoveries throughout the session\n3. 🎯 Follow established patterns and technical decisions from session files\n4. 📅 Add significant changes to update log using format: `| Date | Summary |`\n5. ✅ Mark completed next steps as `[x] ✅ COMPLETED`\n6. 🔍 Reference session context when making technical decisions\n\n**Session File Priority:**\n- Always prioritize `Session_starter.md` over `README.md` for project context\n- Scan workspace root, parent directory, and common subdirectories for session files\n- If no session file exists, offer to create one for future continuity\n\n**Update Discipline:**\n- Add meaningful progress to the update log section\n- Update \"Assistant Memory\" section with new discoveries and learnings\n- Maintain professional, concise update format\n- Track technical constraints, architecture decisions, and solved problems\n\n**Productivity Focus:**\n- Leverage session memory to avoid re-explaining established context\n- Build upon previous session achievements and patterns\n- Maintain consistency in coding style and architectural approaches\n- Provide seamless continuity across development sessions\n\n## Project Context Awareness\n\nWhen working on development projects:\n- Follow established technology stack patterns from session memory\n- Reference previous debugging solutions and architectural decisions\n- Maintain consistency with team coding standards documented in session files\n- Build incrementally on documented progress and achievements\n\n**This ensures consistent, productive development sessions with persistent project memory across all interactions.**",
+          "markdownDescription": "Template for `.github/copilot-instructions.md` file. Supports variables: `{{PROJECT_NAME}}`, `{{PROJECT_TYPE}}`, `{{DATE}}`",
+          "editPresentation": "multilineText",
+          "scope": "application"
+        },
+        "chatCatalyst.sessionStarterTemplate": {
+          "type": "string",
+          "default": "# 🧠 AI Session Starter: {{PROJECT_NAME}}\n\n*Project memory file for AI assistant session continuity. Auto-referenced by custom instructions.*\n\n---\n\n## 📘 Project Context\n**Project:** {{PROJECT_NAME}}\n**Type:** {{PROJECT_TYPE}}\n**Purpose:** [Describe the project purpose and goals]\n**Status:** 🚀 New project setup\n\n**Core Technologies:**\n{{TECH_STACK}}\n\n---\n\n## 🎯 Current State\n**Build Status:** 🔄 In development\n**Key Achievement:** Project initialized with session continuity\n**Active Issue:** None - ready for development\n\n**Architecture Highlights:**\n- [Add key architectural decisions]\n- [Document important patterns or constraints]\n- [Note any special setup requirements]\n\n---\n\n## 🧠 Technical Memory\n\n**Critical Discoveries:**\n- Project created with Chat Catalyst session continuity setup\n- Custom instructions configured for consistent AI interactions\n- Session starter template customized for {{PROJECT_TYPE}} development\n\n**Performance Insights:**\n- [Add performance-related discoveries]\n- [Document optimization decisions]\n\n**Known Constraints:**\n- [Document any technical limitations]\n- [Note dependency requirements]\n- [Add environment-specific considerations]\n\n---\n\n## 🚀 Recent Achievements\n| Date | Achievement |\n|------|-------------|\n| {{DATE}} | ✅ Project initialized with session continuity infrastructure |\n| {{DATE}} | ✅ {{PROJECT_TYPE}} development environment configured |\n\n---\n\n## 📋 Active Priorities\n- [ ] 🏗️ Complete initial project setup\n- [ ] 📦 Configure build pipeline\n- [ ] 🧪 Set up testing framework\n- [ ] 📚 Document core architecture decisions\n- [ ] 🚀 Implement first features\n\n---\n\n## 🔧 Development Environment\n**Common Commands:**\n{{COMMON_COMMANDS}}\n\n**Key Files:** [Document important project files]\n**Setup Requirements:** [List setup steps for new team members]\n\n---\n\n*This file serves as persistent project memory for enhanced AI assistant session continuity.*",
+          "markdownDescription": "Template for `Session_starter.md` file. Supports variables: `{{PROJECT_NAME}}`, `{{PROJECT_TYPE}}`, `{{DATE}}`, `{{TECH_STACK}}`, `{{COMMON_COMMANDS}}`",
+          "editPresentation": "multilineText",
+          "scope": "application"
         }
       }
     },
@@ -65,6 +79,21 @@
       {
         "command": "chatCatalyst.debug",
         "title": "Debug - List Chat Commands",
+        "category": "Chat Catalyst"
+      },
+      {
+        "command": "chatCatalyst.editCustomInstructions",
+        "title": "Edit Custom Instructions Template",
+        "category": "Chat Catalyst"
+      },
+      {
+        "command": "chatCatalyst.editSessionStarter",
+        "title": "Edit Session Starter Template", 
+        "category": "Chat Catalyst"
+      },
+      {
+        "command": "chatCatalyst.resetTemplates",
+        "title": "Reset Templates to Default",
         "category": "Chat Catalyst"
       }
     ],    "keybindings": [

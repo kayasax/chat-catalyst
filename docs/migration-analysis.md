@@ -6,7 +6,7 @@
 ```markdown
 # Issues with current approach:
 - Contains both behavior instructions AND project context
-- Behavior rules can be "forgotten" in long conversations  
+- Behavior rules can be "forgotten" in long conversations
 - Instructions compete with user prompts for attention
 - Same behavior rules repeated across every project
 - Risk of instruction drift over time
@@ -34,7 +34,7 @@
 **Session_starter.md (Pure Project Memory):**
 ```markdown
 - Project type and technologies
-- Current status and achievements  
+- Current status and achievements
 - Technical discoveries and constraints
 - Active priorities and next steps
 - Development environment details
@@ -49,7 +49,7 @@
 - **After:** System prompt maintains consistency ✅
 
 ### **Content Focus**
-- **Before:** Mixed behavior + context (confusing) ❌  
+- **Before:** Mixed behavior + context (confusing) ❌
 - **After:** Clean separation of concerns ✅
 
 ### **Scalability**
@@ -69,19 +69,19 @@
 ## 🧪 **Test Scenarios**
 
 ### **Scenario 1: New Session Startup**
-**Current:** Load behavior rules + project context  
+**Current:** Load behavior rules + project context
 **Proposed:** System prompt active + load focused project memory
 
-### **Scenario 2: Long Conversation** 
-**Current:** Risk of forgetting initial instructions  
+### **Scenario 2: Long Conversation**
+**Current:** Risk of forgetting initial instructions
 **Proposed:** System prompt persists, project context remains clear
 
 ### **Scenario 3: Multiple Projects**
-**Current:** Duplicate behavior rules across all Session_starter.md files  
+**Current:** Duplicate behavior rules across all Session_starter.md files
 **Proposed:** Same system prompt, unique project contexts
 
 ### **Scenario 4: Behavior Changes**
-**Current:** Update every Session_starter.md file manually  
+**Current:** Update every Session_starter.md file manually
 **Proposed:** Update system prompt once, universal effect
 
 ---
@@ -89,7 +89,7 @@
 ## 📈 **Expected Benefits**
 
 1. **Consistency:** Same productive workflow across all projects
-2. **Efficiency:** Faster context loading, no redundant instructions  
+2. **Efficiency:** Faster context loading, no redundant instructions
 3. **Reliability:** No more instruction drift in long sessions
 4. **Scalability:** Pattern works for unlimited number of projects
 5. **Maintenance:** Single point of truth for behavior rules

@@ -32,7 +32,7 @@ This document explores moving core GitHub Copilot behavior patterns to system pr
 
 **File:** `.github/copilot-instructions.md`
 - Contains universal session continuity behaviors
-- Automatically applied to every GitHub Copilot conversation  
+- Automatically applied to every GitHub Copilot conversation
 - Prevents instruction drift completely
 - No maintenance of extension required
 
@@ -57,7 +57,7 @@ This document explores moving core GitHub Copilot behavior patterns to system pr
 
 ### Example user prompt:
 ```
-#workspace #file:Session_starter.md 
+#workspace #file:Session_starter.md
 
 🎯 **Session Context Loaded**
 
