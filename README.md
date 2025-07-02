@@ -9,8 +9,9 @@
 
 **🔥 Stop typing the same prompt over and over again!**
 **🎯 One hotkey to rule them all: `Ctrl+Alt+C`**
+**🆕 NEW v0.3.0: Customize templates globally + Instant session bootstrap!**
 
-👉Instantly resume from where you left and get suggestions for next steps:
+👉 **One-click session setup** with smart project detection:
 ![Demo](demo-v2-20250617.png)
 
 </div>
@@ -27,15 +28,22 @@
 
 ## ✨ **Do This Instead!**
 ```
-✅ Press Ctrl+Alt+C
-✅ Your starting prompt is injected
+✅ Press Ctrl+Alt+C in ANY folder
+✅ Session infrastructure created automatically
 ✅ AI has full context immediately
 ✅ Continue exactly where you left off!
+✅ Team-ready session continuity setup!
 ```
 
 ---
 
 ## 🎯 **Perfect For:**
+
+### 🚀 **NEW: Project Bootstrappers**
+Instantly create session continuity infrastructure for any project
+```
+Press Ctrl+Alt+C → Detects React/Node.js/Python → Creates .github/copilot-instructions.md + Session_starter.md
+```
 
 ### 🧠 **Project Memory Masters**
 Keep AI context across sessions with smart memory prompts
@@ -68,15 +76,27 @@ Share consistent AI interactions
 | Feature | Benefit | Time Saved |
 |---------|---------|------------|
 | 🎯 **One-Click Injection** | Press `Ctrl+Alt+C` from anywhere in VS Code | **90% less typing** |
-| 🧠 **Smart Memory** | Persistent context across sessions | **Hours of re-explaining** |
-| � **Long-Prompt Handling** | Auto-creates context files for prompts >1000 chars | **No chat limits** |
-| 🔗 **Smart File Attachment** | Auto-detects and attaches session_starter.md | **Perfect continuity** |
-| �🔄 **Auto-Clipboard Restore** | Seamless workflow integration | **Zero disruption** |
+| 🆕 **Session Bootstrap** | Auto-creates `.github/copilot-instructions.md` + `Session_starter.md` | **Instant team setup** |
+| 🎨 **Template Customization** | Edit templates globally in VS Code settings | **Perfect workflow fit** |
+| 🧠 **Smart Project Detection** | Detects React, Node.js, Python, Vue, Angular, Rust, Go, Java, .NET | **Perfect templates** |
+| 📝 **Smart Memory** | Persistent context across sessions with custom templates | **Hours of re-explaining** |
+| 📁 **Smart File Attachment** | Auto-detects and attaches session_starter.md | **Perfect continuity** |
+| 🔄 **Auto-Clipboard Restore** | Seamless workflow integration | **Zero disruption** |
 | 🎛️ **Customizable** | Your prompts, your way | **Infinite possibilities** |
 
-### 🆕 **NEW in v0.1.3: Smart Long-Prompt Technology**
-- **🤖 Intelligent Detection**: Automatically detects when your prompt is too long (>1000 characters)
-- **🧠 Session Memory**: Auto-attaches `session_starter.md` for perfect project continuity
+### 🆕 **NEW in v0.3.0: Global Template Customization**
+- **🎨 Edit Templates Globally**: Customize `.github/copilot-instructions.md` and `Session_starter.md` templates in VS Code settings
+- **🔧 Template Variables**: Use `{{PROJECT_NAME}}`, `{{PROJECT_TYPE}}`, `{{DATE}}`, `{{TECH_STACK}}`, `{{COMMON_COMMANDS}}`
+- **⚡ Quick Commands**: `Chat Catalyst: Edit Custom Instructions Template`, `Chat Catalyst: Edit Session Starter Template`
+- **🔄 Auto-Update**: Changes apply immediately to all new projects - press `Ctrl+Alt+C` to regenerate files
+- **💾 Global Persistence**: Templates saved globally, not per-workspace - perfect for consistent team standards
+
+### 🚀 **v0.2.0: Session Continuity Bootstrap**
+- **🏗️ One-Click Setup**: Automatically creates session infrastructure for any project type
+- **🧠 Smart Detection**: Recognizes 12+ project types (React, Node.js, Python, Vue, Angular, Rust, Go, Java, .NET, etc.)
+- **📝 Custom Templates**: Project-specific Session_starter.md with relevant technologies and commands
+- **⚙️ Native Integration**: Creates `.github/copilot-instructions.md` for persistent behavior across ALL conversations
+- **🎯 Priority Logic**: Session continuity takes precedence - no more temporary context files!
 
 ---
 
@@ -87,10 +107,24 @@ Share consistent AI interactions
 ext install LoicMICHEL.chat-catalyst
 ```
 
-### 2️⃣ **Configure Your Magic Prompt**
+### 2️⃣ **Bootstrap Your Project (NEW!)**
+Press `Ctrl+Alt+C` in any folder to:
+- ✅ Detect your project type automatically
+- ✅ Create `.github/copilot-instructions.md` (persistent AI behavior)
+- ✅ Create `Session_starter.md` (project-specific template)
+- ✅ Inject session startup prompt
+
+### 3️⃣ **Customize Templates Globally (NEW!)**
+`Settings → Extensions → Chat Catalyst → Template Settings`
+- **🎨 Custom Instructions Template**: Edit the `.github/copilot-instructions.md` template
+- **📝 Session Starter Template**: Edit the `Session_starter.md` template  
+- **🔧 Template Variables**: Use `{{PROJECT_NAME}}`, `{{PROJECT_TYPE}}`, `{{DATE}}`, etc.
+- **⚡ Commands**: `Chat Catalyst: Edit Custom Instructions Template`
+
+### 4️⃣ **Configure Your Magic Prompt (Optional)**
 `Settings → Extensions → Chat Catalyst → Auto Prompt`
 
-### 3️⃣ **Use Your Superpower**
+### 5️⃣ **Use Your Superpower**
 Press `Ctrl+Alt+C` and watch the magic happen! ✨
 
 ---
@@ -143,12 +177,14 @@ Let's learn together! 📚
 
 ## 📊 **Performance**
 
-| Metric | Before Chat Catalyst | With Chat Catalyst |
-|--------|---------------------|-------------------|
+| Metric | Before Chat Catalyst | With Chat Catalyst v0.2.0 |
+|--------|---------------------|----------------------------|
 | ⏱️ **Setup Time** | 30-60 seconds | **1-2 seconds** |
+| 🏗️ **Project Bootstrap** | Manual setup | **Automatic detection + templates** |
 | 🔄 **Context Loss** | Every session | **Never** |
 | ⌨️ **Typing** | Repetitive | **Eliminated** |
 | 🎯 **Focus** | Broken by setup | **Maintained** |
+| 👥 **Team Setup** | Hours of configuration | **One-click for everyone** |
 
 ---
 
