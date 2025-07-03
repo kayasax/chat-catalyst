@@ -1,7 +1,7 @@
 {  "name": "chat-catalyst",
   "displayName": "Chat Catalyst",
   "description": "Auto-inject custom prompts into GitHub Copilot Chat with smart long-prompt handling and session continuity setup",
-  "version": "0.3.0",
+  "version": "0.3.2",
   "license": "MIT",
   "author": {
     "name": "Loic Michel",
@@ -72,23 +72,13 @@
         "category": "Chat Catalyst"
       },
       {
-        "command": "chatCatalyst.test",
-        "title": "Test Extension",
-        "category": "Chat Catalyst"
-      },
-      {
-        "command": "chatCatalyst.debug",
-        "title": "Debug - List Chat Commands",
-        "category": "Chat Catalyst"
-      },
-      {
         "command": "chatCatalyst.editCustomInstructions",
-        "title": "Edit Custom Instructions Template",
+        "title": "Edit Copilot Custom Instructions Template ",
         "category": "Chat Catalyst"
       },
       {
         "command": "chatCatalyst.editSessionStarter",
-        "title": "Edit Session Starter Template", 
+        "title": "Edit Session Starter Template",
         "category": "Chat Catalyst"
       },
       {

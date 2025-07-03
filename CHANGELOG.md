@@ -2,24 +2,6 @@
 
 All notable changes to the Chat Catalyst extension will be documented in this file.
 
-## [0.3.0] - 2025-07-02
-
-### 🎨 **NEW: Global Template Customization**
-- **Rich text template editors**: Edit `.github/copilot-instructions.md` and `Session_starter.md` templates directly in VS Code settings
-- **Template variables**: Support for `{{PROJECT_NAME}}`, `{{PROJECT_TYPE}}`, `{{DATE}}`, `{{TECH_STACK}}`, `{{COMMON_COMMANDS}}` in custom templates
-- **Global persistence**: Templates saved in user settings and apply to all new projects
-- **Quick commands**: 
-  - `Chat Catalyst: Edit Custom Instructions Template`
-  - `Chat Catalyst: Edit Session Starter Template`
-  - `Chat Catalyst: Reset Templates to Default`
-- **Auto-regeneration**: Templates update immediately when `Ctrl+Alt+C` is pressed - always reflects latest customizations
-
-### 🔧 **Template System Enhancements**
-- **Settings integration**: Templates stored as `multilineText` settings with proper markdown descriptions
-- **Variable substitution**: Smart replacement of template variables with actual project data
-- **Backwards compatibility**: Default templates match previous hardcoded behavior
-- **Team-ready**: Global templates perfect for company/team standardization
-
 ## [0.2.0] - 2025-07-02
 
 ### 🚀 **Major New Features - Session Continuity Bootstrap**
