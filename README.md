@@ -1,214 +1,93 @@
-<div align="center">
+# Chat Catalyst
 
-# 🚀 Chat Catalyst
-### *Supercharge Your GitHub Copilot Chat Experience*
+**Automatically inject custom prompts into GitHub Copilot Chat for consistent, productive AI sessions**
 
 [![Visual Studio Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/LoicMICHEL.chat-catalyst?color=blue&label=VS%20Code%20Marketplace)](https://marketplace.visualstudio.com/items?itemName=LoicMICHEL.chat-catalyst)
 [![Downloads](https://img.shields.io/visual-studio-marketplace/d/LoicMICHEL.chat-catalyst?color=green)](https://marketplace.visualstudio.com/items?itemName=LoicMICHEL.chat-catalyst)
-[![Rating](https://img.shields.io/visual-studio-marketplace/r/LoicMICHEL.chat-catalyst?color=yellow)](https://marketplace.visualstudio.com/items?itemName=LoicMICHEL.chat-catalyst)
 
-**🔥 Stop typing the same prompt over and over again!**
-**🎯 One hotkey to rule them all: `Ctrl+Alt+C`**
-**🆕 NEW v0.3.0: Customize templates globally + Instant session bootstrap!**
+## What is Chat Catalyst?
 
-👉 **One-click session setup** with smart project detection:
-![Demo](demo-v2-20250617.png)
+Chat Catalyst eliminates repetitive setup when starting GitHub Copilot Chat sessions. Instead of manually typing the same context and instructions every time, this extension automatically injects your custom prompts and sets up session continuity for your projects.
 
-</div>
+## Key Productivity Benefits
 
----
+- **Save Time**: No more retyping the same prompts every chat session
+- **Maintain Context**: Automatic session continuity with project memory files
+- **Team Consistency**: Shared AI instructions across your development team
+- **Project Bootstrap**: One-click setup of session infrastructure for any project
+- **Smart Detection**: Automatically detects project type and creates appropriate context
 
-## 🤔 **Tired of This?**
+## How It Works
+
+1. **Press `Ctrl+Alt+C`** in any VS Code workspace
+2. **Extension detects your project type** (React, Node.js, Python, etc.)
+3. **Creates session infrastructure**:
+   - `.github/copilot-instructions.md` - Persistent AI behavior for all chats
+   - `Session_starter.md` - Project-specific context and memory
+   - `.github/prompts/session-startup.prompt.md` - Automated session startup
+4. **Copilot Chat opens with full context** and project understanding
+
+## Installation
+
+1. Install from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=LoicMICHEL.chat-catalyst)
+2. Press `Ctrl+Alt+C` in any project to get started
+3. Customize templates in Settings > Extensions > Chat Catalyst (optional)
+
+## Features
+
+### Session Continuity Setup
+- Automatically creates `.github/copilot-instructions.md` for consistent AI behavior
+- Generates `Session_starter.md` with project-specific context
+- Creates `.github/prompts/session-startup.prompt.md` for automated startup
+- Template variables for project name, type, date, and common commands
+
+### Template Customization
+- Edit custom instructions template globally
+- Modify session starter template structure
+- Reset to defaults when needed
+- Variable substitution for dynamic content
+
+## Commands
+
+- **Start Chat with Auto-Prompt** (`Ctrl+Alt+C`) - Launch Copilot Chat with your project context
+- **Edit Custom Instructions Template** - Customize the `.github/copilot-instructions.md` template
+- **Edit Session Starter Template** - Modify the `Session_starter.md` template
+- **Reset Templates to Default** - Restore original templates
+
+## Configuration
+
+Access settings via `Settings > Extensions > Chat Catalyst`:
+
+- **Custom Instructions Template**: Template for `.github/copilot-instructions.md`
+- **Session Starter Template**: Template for `Session_starter.md`
+
+
+
+## Example Session Startup Prompt
+
+When you press `Ctrl+Alt+C`, Chat Catalyst automatically injects:
+
 ```
-❌ Open Copilot Chat
-❌ Type your long context prompt... AGAIN
-❌ Wait for AI to understand your project... AGAIN
-❌ Lose context between sessions... AGAIN
-```
+#file:Session_starter.md
 
-## ✨ **Do This Instead!**
-```
-✅ Press Ctrl+Alt+C in ANY folder
-✅ Session infrastructure created automatically
-✅ AI has full context immediately
-✅ Continue exactly where you left off!
-✅ Team-ready session continuity setup!
-```
+🎯 Session Context Loaded
 
----
+I've attached the Session_starter.md file which contains the project context and current state for this session. Please:
 
-## 🎯 **Perfect For:**
+1. Review the session file for project overview, current status, and established patterns
+2. Follow the documented technical decisions and architectural patterns
+3. Update the session file as we make progress with new discoveries and achievements
+4. Maintain project continuity by building upon previous session work
 
-### 🚀 **NEW: Project Bootstrappers**
-Instantly create session continuity infrastructure for any project
-```
-Press Ctrl+Alt+C → Detects React/Node.js/Python → Creates .github/copilot-instructions.md + Session_starter.md
-```
-
-### 🧠 **Project Memory Masters**
-Keep AI context across sessions with smart memory prompts
-```
-"Load project context from session_starter.md and continue our work..."
-```
-
-### ⚡ **Speed Demons**
-Skip the setup, jump straight to coding
-```
-"You are a TypeScript expert. Help me with..."
-```
-
-### 🎓 **Learning Enthusiasts**
-Maintain educational continuity
-```
-"Continue teaching me React, considering our previous lessons..."
-```
-
-### 👥 **Team Collaborators**
-Share consistent AI interactions
-```
-"Use our team's coding standards and review this code..."
-```
-
----
-
-## 🚀 **Key Features**
-
-| Feature | Benefit | Time Saved |
-|---------|---------|------------|
-| 🎯 **One-Click Injection** | Press `Ctrl+Alt+C` from anywhere in VS Code | **90% less typing** |
-| 🆕 **Session Bootstrap** | Auto-creates `.github/copilot-instructions.md` + `Session_starter.md` | **Instant team setup** |
-| 🎨 **Template Customization** | Edit templates globally in VS Code settings | **Perfect workflow fit** |
-| 🧠 **Smart Project Detection** | Detects React, Node.js, Python, Vue, Angular, Rust, Go, Java, .NET | **Perfect templates** |
-| 📝 **Smart Memory** | Persistent context across sessions with custom templates | **Hours of re-explaining** |
-| 📁 **Smart File Attachment** | Auto-detects and attaches session_starter.md | **Perfect continuity** |
-| 🔄 **Auto-Clipboard Restore** | Seamless workflow integration | **Zero disruption** |
-| 🎛️ **Customizable** | Your prompts, your way | **Infinite possibilities** |
-
-### 🆕 **NEW in v0.3.0: Global Template Customization**
-- **🎨 Edit Templates Globally**: Customize `.github/copilot-instructions.md` and `Session_starter.md` templates in VS Code settings
-- **🔧 Template Variables**: Use `{{PROJECT_NAME}}`, `{{PROJECT_TYPE}}`, `{{DATE}}`, `{{TECH_STACK}}`, `{{COMMON_COMMANDS}}`
-- **⚡ Quick Commands**: `Chat Catalyst: Edit Custom Instructions Template`, `Chat Catalyst: Edit Session Starter Template`
-- **🔄 Auto-Update**: Changes apply immediately to all new projects - press `Ctrl+Alt+C` to regenerate files
-- **💾 Global Persistence**: Templates saved globally, not per-workspace - perfect for consistent team standards
-
-### 🚀 **v0.2.0: Session Continuity Bootstrap**
-- **🏗️ One-Click Setup**: Automatically creates session infrastructure for any project type
-- **🧠 Smart Detection**: Recognizes 12+ project types (React, Node.js, Python, Vue, Angular, Rust, Go, Java, .NET, etc.)
-- **📝 Custom Templates**: Project-specific Session_starter.md with relevant technologies and commands
-- **⚙️ Native Integration**: Creates `.github/copilot-instructions.md` for persistent behavior across ALL conversations
-- **🎯 Priority Logic**: Session continuity takes precedence - no more temporary context files!
-
----
-
-## ⚡ **Quick Start**
-
-### 1️⃣ **Install**
-```bash
-ext install LoicMICHEL.chat-catalyst
+Ready to continue where we left off! 🚀
 ```
 
-### 2️⃣ **Bootstrap Your Project (NEW!)**
-Press `Ctrl+Alt+C` in any folder to:
-- ✅ Detect your project type automatically
-- ✅ Create `.github/copilot-instructions.md` (persistent AI behavior)
-- ✅ Create `Session_starter.md` (project-specific template)
-- ✅ Inject session startup prompt
+## Contributing
 
-### 3️⃣ **Customize Templates Globally (NEW!)**
-`Settings → Extensions → Chat Catalyst → Template Settings`
-- **🎨 Custom Instructions Template**: Edit the `.github/copilot-instructions.md` template
-- **📝 Session Starter Template**: Edit the `Session_starter.md` template
-- **🔧 Template Variables**: Use `{{PROJECT_NAME}}`, `{{PROJECT_TYPE}}`, `{{DATE}}`, etc.
-- **⚡ Commands**: `Chat Catalyst: Edit Custom Instructions Template`
+- Report bugs: [GitHub Issues](https://github.com/kayasax/chat-catalyst/issues)
+- Feature requests: [GitHub Issues](https://github.com/kayasax/chat-catalyst/issues)
+- Rate the extension: [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=LoicMICHEL.chat-catalyst)
 
-### 4️⃣ **Configure Your Magic Prompt (Optional)**
-`Settings → Extensions → Chat Catalyst → Auto Prompt`
+## License
 
-### 5️⃣ **Use Your Superpower**
-Press `Ctrl+Alt+C` and watch the magic happen! ✨
-
----
-
-## 🔥 **Popular Prompts That Will Change Your Life**
-
-### 🧠 **The Project Memory Prompt** (Most Popular!)
-```
-Step 1: Load Project Context
-Check if session_starter.md exists in the workspace. If it exists: Read and use it to understand the project's goals, constraints, and current status. If it does not exist: Ask me a few questions to gather the necessary context, then create the file with a summary of our discussion.
-
-Step 2: Maintain Persistent Memory
-Use the context file as your memory across sessions. Update it regularly with key findings, decisions, blockers, and progress. Use it to maintain continuity and avoid repeating questions or work.
-
-Step 3: Behavior Expectations
-Be proactive: suggest next steps, improvements, or missing pieces. Be concise and structured in your responses. When unsure, ask clarifying questions before proceeding.
-```
-*Turns your AI into a project memory system that never forgets! 🤯*
-
-### ⚡ **The Speed Coder Prompt**
-```
-You are an expert developer. I need fast, accurate help with coding. Always:
-1. Provide working code examples
-2. Explain key concepts briefly
-3. Suggest best practices
-4. Ask clarifying questions if needed
-Ready to code! 🚀
-```
-
-### 🎓 **The Learning Accelerator**
-```
-You are my coding mentor. Track my learning progress and:
-1. Adapt explanations to my current skill level
-2. Build on previous lessons we've had
-3. Provide practical examples I can try
-4. Challenge me with next-level concepts when ready
-Let's learn together! 📚
-```
-
----
-
-## 🛠️ **Advanced Configuration**
-
-### Commands Available:
-- **`Ctrl+Alt+C`** - 🚀 Start chat with session setup (works globally!)
-- **"Chat Catalyst: Edit Custom Instructions"** - ✏️ Customize session instructions template
-- **"Chat Catalyst: Edit Session Starter"** - 🧠 Customize session memory template
-- **"Chat Catalyst: Reset Templates"** - ♻️ Reset templates to defaults
-
----
-
-## 📊 **Performance**
-
-| Metric | Before Chat Catalyst | With Chat Catalyst v0.2.0 |
-|--------|---------------------|----------------------------|
-| ⏱️ **Setup Time** | 30-60 seconds | **1-2 seconds** |
-| 🏗️ **Project Bootstrap** | Manual setup | **Automatic detection + templates** |
-| 🔄 **Context Loss** | Every session | **Never** |
-| ⌨️ **Typing** | Repetitive | **Eliminated** |
-| 🎯 **Focus** | Broken by setup | **Maintained** |
-| 👥 **Team Setup** | Hours of configuration | **One-click for everyone** |
-
----
-
-## 🤝 **Contributing & Support**
-
-- 🐛 **Found a bug?** [Report it here](https://github.com/kayasax/chat-catalyst/issues)
-- 💡 **Feature request?** [Let us know!](https://github.com/kayasax/chat-catalyst/issues)
-- ⭐ **Like it?** [Rate us on the marketplace!](https://marketplace.visualstudio.com/items?itemName=LoicMICHEL.chat-catalyst)
-
----
-
-## 📝 **License**
-
-MIT License - Feel free to use, modify, and share!
-
----
-
-<div align="center">
-
-### 🚀 **Ready to 10x Your Copilot Experience?**
-
-**[Install Chat Catalyst Now!](https://marketplace.visualstudio.com/items?itemName=LoicMICHEL.chat-catalyst)**
-
-*Stop wasting time on repetitive setup. Start coding faster today!* ⚡
-
-</div>
+MIT License - See LICENSE file for details.
