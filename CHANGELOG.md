@@ -2,6 +2,20 @@
 
 All notable changes to the Chat Catalyst extension will be documented in this file.
 
+## [0.3.1] - 2025-07-03
+
+### 🧹 **Legacy Code Cleanup**
+- **Removed legacy features**: Completely removed old "Auto Prompt" setting and related functionality
+- **Code cleanup**: Removed unused functions `getAutoPrompt()`, `injectSmartPrompt()`, `buildSmartContextPrompt()`, `createPromptContextFile()`
+- **Settings cleanup**: Removed `chatCatalyst.autoPrompt` and `chatCatalyst.enabled` settings
+- **Commands cleanup**: Removed `chatCatalyst.editPrompt` and `chatCatalyst.toggle` commands
+- **Documentation updates**: Updated README to reflect current template-based workflow
+- **Focused architecture**: Extension now exclusively focuses on template-based session continuity setup
+
+### 🔧 **Performance Improvements** 
+- **Reduced bundle size**: Removed ~200 lines of unused legacy code
+- **Cleaner architecture**: Simplified codebase focused on template system and project bootstrapping
+
 ## [0.3.0] - 2025-07-02
 
 ### 🎨 **NEW: Global Template Customization**

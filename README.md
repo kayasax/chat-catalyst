@@ -117,7 +117,7 @@ Press `Ctrl+Alt+C` in any folder to:
 ### 3️⃣ **Customize Templates Globally (NEW!)**
 `Settings → Extensions → Chat Catalyst → Template Settings`
 - **🎨 Custom Instructions Template**: Edit the `.github/copilot-instructions.md` template
-- **📝 Session Starter Template**: Edit the `Session_starter.md` template  
+- **📝 Session Starter Template**: Edit the `Session_starter.md` template
 - **🔧 Template Variables**: Use `{{PROJECT_NAME}}`, `{{PROJECT_TYPE}}`, `{{DATE}}`, etc.
 - **⚡ Commands**: `Chat Catalyst: Edit Custom Instructions Template`
 
@@ -169,9 +169,10 @@ Let's learn together! 📚
 ## 🛠️ **Advanced Configuration**
 
 ### Commands Available:
-- **`Ctrl+Alt+C`** - 🚀 Start chat with auto-prompt (works globally!)
-- **"Chat Catalyst: Edit Auto-Prompt"** - ✏️ Update your magic prompt
-- **"Chat Catalyst: Toggle"** - 🔄 Enable/disable injection
+- **`Ctrl+Alt+C`** - 🚀 Start chat with session setup (works globally!)
+- **"Chat Catalyst: Edit Custom Instructions"** - ✏️ Customize session instructions template
+- **"Chat Catalyst: Edit Session Starter"** - 🧠 Customize session memory template
+- **"Chat Catalyst: Reset Templates"** - ♻️ Reset templates to defaults
 
 ---
 

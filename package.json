@@ -1,7 +1,7 @@
 {  "name": "chat-catalyst",
   "displayName": "Chat Catalyst",
   "description": "Auto-inject custom prompts into GitHub Copilot Chat with smart long-prompt handling and session continuity setup",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "license": "MIT",
   "author": {
     "name": "Loic Michel",
@@ -27,19 +27,7 @@
   "contributes": {
     "configuration": {
       "title": "Chat Catalyst",
-      "properties": {        "chatCatalyst.autoPrompt": {
-          "type": "string",
-          "default": "Step 1: Load Project Context\nCheck if session_starter.md file exists in the workspace. If it exists: Read and use it to understand the project's goals, constraints, and current status. If it does not exist: Ask me \"Describe your project in a few words to get started\" and then create a basic session_starter.md file.\n\nStep 2: Maintain Persistent Memory\nALWAYS update the existing session_starter.md file with our session progress. Add new findings, decisions, blockers, and progress to the Update Log section. Do NOT create additional markdown files - use session_starter.md as the single source of truth for project memory.\n\nStep 3: Behavior Expectations\nBe proactive: suggest next steps, improvements, or missing pieces. Be concise and structured in your responses. Update the session_starter.md file regularly during our conversation to maintain continuity across sessions.\n\nIMPORTANT: Focus on updating the existing session_starter.md file rather than creating new documentation files. This file should serve as the persistent memory and be updated with each significant finding or decision.",
-          "description": "The prompt that will be automatically injected when starting any chat session",
-          "scope": "window"
-        },
-        "chatCatalyst.enabled": {
-          "type": "boolean",
-          "default": true,
-          "description": "Enable automatic prompt injection",
-          "scope": "window"
-        },
-        "chatCatalyst.customInstructionsTemplate": {
+      "properties": {        "chatCatalyst.customInstructionsTemplate": {
           "type": "string",
           "default": "# 🧠 Session Continuity Instructions for GitHub Copilot\n\n## Core Session Management Behaviors\n\n**ALWAYS when starting any session:**\n1. 📘 Look for `Session_starter.md` when beginning work in any workspace\n2. 🔄 Update `Session_starter.md` with progress, decisions, and discoveries throughout the session\n3. 🎯 Follow established patterns and technical decisions from session files\n4. 📅 Add significant changes to update log using format: `| Date | Summary |`\n5. ✅ Mark completed next steps as `[x] ✅ COMPLETED`\n6. 🔍 Reference session context when making technical decisions\n\n**Session File Priority:**\n- Always prioritize `Session_starter.md` over `README.md` for project context\n- Scan workspace root, parent directory, and common subdirectories for session files\n- If no session file exists, offer to create one for future continuity\n\n**Update Discipline:**\n- Add meaningful progress to the update log section\n- Update \"Assistant Memory\" section with new discoveries and learnings\n- Maintain professional, concise update format\n- Track technical constraints, architecture decisions, and solved problems\n\n**Productivity Focus:**\n- Leverage session memory to avoid re-explaining established context\n- Build upon previous session achievements and patterns\n- Maintain consistency in coding style and architectural approaches\n- Provide seamless continuity across development sessions\n\n## Project Context Awareness\n\nWhen working on development projects:\n- Follow established technology stack patterns from session memory\n- Reference previous debugging solutions and architectural decisions\n- Maintain consistency with team coding standards documented in session files\n- Build incrementally on documented progress and achievements\n\n**This ensures consistent, productive development sessions with persistent project memory across all interactions.**",
           "markdownDescription": "Template for `.github/copilot-instructions.md` file. Supports variables: `{{PROJECT_NAME}}`, `{{PROJECT_TYPE}}`, `{{DATE}}`",
@@ -59,16 +47,6 @@
       {
         "command": "chatCatalyst.startChat",
         "title": "Start Chat with Auto-Prompt",
-        "category": "Chat Catalyst"
-      },
-      {
-        "command": "chatCatalyst.editPrompt",
-        "title": "Edit Auto-Prompt",
-        "category": "Chat Catalyst"
-      },
-      {
-        "command": "chatCatalyst.toggle",
-        "title": "Toggle Auto-Injection",
         "category": "Chat Catalyst"
       },
       {
