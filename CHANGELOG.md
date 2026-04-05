@@ -8,7 +8,7 @@ All notable changes to the Chat Catalyst extension will be documented in this fi
 - **Auto-creation of session infrastructure**: Extension now automatically creates `.github/copilot-instructions.md` and `Session_starter.md` for new projects
 - **Smart project type detection**: Automatically detects React, Node.js, Python, Vue, Angular, Rust, Go, Java, .NET, and other project types
 - **Intelligent session startup**: Prioritizes session continuity over old auto-prompt logic - always creates proper session files
-- **One-click team setup**: Press `Ctrl+Alt+C` in any folder to instantly bootstrap session continuity infrastructure
+- **One-click team setup**: Press `Ctrl+Shift+Alt+C` in any folder to instantly bootstrap session continuity infrastructure
 
 ### ✨ **Enhanced Session Management**
 - **Project-specific templates**: Session_starter.md templates customized for detected project type with relevant technologies and commands
@@ -68,4 +68,4 @@ All notable changes to the Chat Catalyst extension will be documented in this fi
 ## [0.1.0] - Initial Release
 - Auto-prompt injection into GitHub Copilot Chat
 - Configurable custom prompts
-- Hotkey support (Ctrl+Alt+C)
+- Hotkey support (Ctrl+Shift+Alt+C)

@@ -89,8 +89,8 @@
     ],    "keybindings": [
       {
         "command": "chatCatalyst.startChat",
-        "key": "ctrl+alt+c",
-        "mac": "cmd+alt+c"
+        "key": "ctrl+shift+alt+c",
+        "mac": "cmd+shift+alt+c"
       }
     ],
     "chatParticipants": [

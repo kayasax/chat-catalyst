@@ -22,7 +22,7 @@ I created **Chat Catalyst** - a VS Code extension that gives GitHub Copilot a **
 
 ### 🎯 **How It Works for PowerShell Projects:**
 
-**1. One-Time Setup** (`Ctrl+Alt+C`)
+**1. One-Time Setup** (`Ctrl+Shift+Alt+C`)
 ```
 Step 1: Load Project Context
 Check if session_starter.md exists. If yes: use it to understand my PowerShell project goals, module architecture, and coding standards. If no: ask me about my project and create this memory file.
@@ -35,7 +35,7 @@ Follow enterprise PowerShell best practices, suggest improvements, and maintain 
 ```
 
 **2. Every Future Session**
-- Press `Ctrl+Alt+C` 
+- Press `Ctrl+Shift+Alt+C` 
 - Copilot instantly knows your project, coding standards, and where you left off
 - **Zero setup time** = **Maximum coding time**
 

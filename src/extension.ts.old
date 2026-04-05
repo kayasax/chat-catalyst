@@ -436,7 +436,7 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(startChatCommand, editPromptCommand, toggleCommand, testCommand, debugCommand);
 	console.log('Chat Catalyst commands registered successfully!');
 	// Show a welcome message when the extension activates
-	const message = 'Chat Catalyst is ready! Press Ctrl+Alt+C to start chat with auto-prompt.';
+	const message = 'Chat Catalyst is ready! Press Ctrl+Shift+Alt+C to start chat with auto-prompt.';
 
 	vscode.window.showInformationMessage(message, 'Start Chat', 'Edit Prompt', 'Open Settings').then(async selection => {
 		console.log('Welcome action selected:', selection);
@@ -448,7 +448,7 @@ export function activate(context: vscode.ExtensionContext) {
 				await vscode.commands.executeCommand('chatCatalyst.startChat');
 			} catch (error) {
 				console.error('Start chat from welcome failed:', error);
-				vscode.window.showErrorMessage('Failed to start chat. Try using Ctrl+Alt+C instead.');
+				vscode.window.showErrorMessage('Failed to start chat. Try using Ctrl+Shift+Alt+C instead.');
 			}
 		} else if (selection === 'Edit Prompt') {
 			vscode.commands.executeCommand('chatCatalyst.editPrompt');

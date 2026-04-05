@@ -35,7 +35,7 @@
 - Context file persistence bug was key blocker (fixed 2025-06-18)
 - Workspace path detection needed multi-path fallback (fixed 2025-07-02)
 - Session_starter.md requires absolute priority over other project files
-- Extension works via Ctrl+Alt+C shortcut, not manual chat typing
+- Extension works via Ctrl+Shift+Alt+C shortcut, not manual chat typing
 
 **Performance Insights:**
 - Files persist 24 hours for chat session continuity
@@ -75,7 +75,7 @@
 ## 🔧 Development Environment
 **Workspace Structure:** `c:\startprompt\` (parent) contains `chat-tutorial\` (project)
 **Build Command:** `npm run compile`
-**Test Method:** F5 debug launch + Ctrl+Alt+C in Extension Development Host
+**Test Method:** F5 debug launch + Ctrl+Shift+Alt+C in Extension Development Host
 **Key Files:** `src/extension.ts`, `package.json`, `README.md`, `CHANGELOG.md`
 
 ---

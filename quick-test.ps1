@@ -69,7 +69,7 @@ Set-Content (Join-Path $testDir "README.md") -Value @"
 # Quick Test Project
 
 This is a test project for Chat Catalyst extension testing.
-Press Ctrl+Alt+C to test the extension!
+Press Ctrl+Shift+Alt+C to test the extension!
 "@
 
 Write-Host "📁 Test workspace created: $testDir" -ForegroundColor Green
@@ -78,7 +78,7 @@ Write-Host ""
 Write-Host "🧪 TESTING INSTRUCTIONS:" -ForegroundColor Yellow
 Write-Host "1. Open Developer Console FIRST (Help > Toggle Developer Tools)" -ForegroundColor Cyan
 Write-Host "2. Look for '🧪 TESTING VERSION: catalyst-testing.vsix' in console" -ForegroundColor Cyan
-Write-Host "3. Press Ctrl+Alt+C to trigger the extension" -ForegroundColor Cyan
+Write-Host "3. Press Ctrl+Shift+Alt+C to trigger the extension" -ForegroundColor Cyan
 Write-Host "4. Check that .github/copilot-instructions.md is created" -ForegroundColor Cyan
 Write-Host "5. Check that Session_starter.md is created" -ForegroundColor Cyan
 Write-Host "6. Check that .github/prompts/session-startup.prompt.md is created" -ForegroundColor Cyan

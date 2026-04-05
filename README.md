@@ -19,7 +19,7 @@ Chat Catalyst eliminates repetitive setup when starting GitHub Copilot Chat sess
 
 ## How It Works
 
-1. **Press `Ctrl+Alt+C`** in any VS Code workspace
+1. **Press `Ctrl+Shift+Alt+C`** in any VS Code workspace
 2. **Extension detects your project type** (React, Node.js, Python, etc.)
 3. **Creates session infrastructure**:
    - `.github/copilot-instructions.md` - Persistent AI behavior for all chats
@@ -30,7 +30,7 @@ Chat Catalyst eliminates repetitive setup when starting GitHub Copilot Chat sess
 ## Installation
 
 1. Install from the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=LoicMICHEL.chat-catalyst)
-2. Press `Ctrl+Alt+C` in any project to get started
+2. Press `Ctrl+Shift+Alt+C` in any project to get started
 3. Customize templates in Settings > Extensions > Chat Catalyst (optional)
 
 ## Features
@@ -49,7 +49,7 @@ Chat Catalyst eliminates repetitive setup when starting GitHub Copilot Chat sess
 
 ## Commands
 
-- **Start Chat with Auto-Prompt** (`Ctrl+Alt+C`) - Launch Copilot Chat with your project context
+- **Start Chat with Auto-Prompt** (`Ctrl+Shift+Alt+C`) - Launch Copilot Chat with your project context
 - **Edit Custom Instructions Template** - Customize the `.github/copilot-instructions.md` template
 - **Edit Session Starter Template** - Modify the `Session_starter.md` template
 - **Reset Templates to Default** - Restore original templates
@@ -65,7 +65,7 @@ Access settings via `Settings > Extensions > Chat Catalyst`:
 
 ## Example Session Startup Prompt
 
-When you press `Ctrl+Alt+C`, Chat Catalyst automatically injects:
+When you press `Ctrl+Shift+Alt+C`, Chat Catalyst automatically injects:
 
 ```
 #file:Session_starter.md

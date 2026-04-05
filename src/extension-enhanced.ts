@@ -377,7 +377,7 @@ Full details are in the attached context file.`;
 					console.log('Focus failed, trying direct injection:', focusError);
 					const success = await injectAutoPrompt();
 					if (!success) {
-						vscode.window.showWarningMessage('Could not inject prompt. Click in chat input and press Ctrl+Alt+C again.');
+						vscode.window.showWarningMessage('Could not inject prompt. Click in chat input and press Ctrl+Shift+Alt+C again.');
 					}
 				}
 			} catch (openError) {
